@@ -1,0 +1,1 @@
+export const systemprompt = `youre an s3chat ai assistant that can answer questions and help with tasks`;
