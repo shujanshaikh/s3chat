@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './routes/Home';
 import ChatLayout from './components/ChatLayout';
-import ChatPage from './components/ChatPage';
+import ChatPage from './routes/ChatPage';
 
 export default function App() {
   return (

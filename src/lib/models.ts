@@ -93,7 +93,7 @@ export const models: ModelInfo[] = [
 ];
 
 // Default model
-export const DEFAULT_MODEL = "gemini-2.5-flash";
+export const DEFAULT_MODEL = "llama-3.1-70b";
 
 // Model selection function
 export const getModel = (modelName: string) => {

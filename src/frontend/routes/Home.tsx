@@ -2,7 +2,7 @@ import { Authenticated, Unauthenticated } from "convex/react";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 import { Id } from "../../../convex/_generated/dataModel";
 import { useParams } from "react-router-dom";
-import ChatPage from "../components/ChatPage";
+import ChatPage from "./ChatPage";
 
 export default function Home() {
     const { threadId } = useParams<{ threadId: Id<"threads"> }>();

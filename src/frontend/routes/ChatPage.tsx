@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import Chat from "./Chat"; // Adjust path to your Chat component
+import Chat from "../components/Chat"; // Adjust path to your Chat component
 import { Id } from "../../../convex/_generated/dataModel"; // Adjust path
 
 export default function ChatPage() {

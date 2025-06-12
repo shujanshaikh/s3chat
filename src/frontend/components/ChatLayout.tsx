@@ -10,7 +10,7 @@ export default function ChatLayout() {
     <div className="flex h-dvh flex-row-reverse">
       {/* Sidebar */}
       <div className="flex w-72 flex-col border-l border-gray-800 bg-[#111] p-4">
-        <h1 className="mb-4 text-lg font-semibold text-white justify-center items-center">S3.Chat</h1>
+        <h1 className="mb-4 font-semibold text-white justify-center items-center flex self-center text-xl">S3.Chat</h1>
         <NewChatButton />
         <nav className="mt-6 flex-1 space-y-2 overflow-y-auto">
           {threads?.map((thread) => (
