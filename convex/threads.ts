@@ -2,11 +2,15 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 export const getThreads = query({
-  args: { userId: v.string() }, // Assuming you have a user ID
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (user == null) {
+      throw new Error("Not Authorized");
+    }
     return await ctx.db
       .query("threads")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_userId", (q) => q.eq("userId", user.subject!))
       .order("desc") // Order by last updated, or created at
       .take(200);
   },
@@ -14,12 +18,16 @@ export const getThreads = query({
 
 export const create = mutation({
   args: {
-    userId: v.string(),
     title: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+
+    if (user == null) {
+      throw new Error("Not Authorized");
+    }
     const threads = await ctx.db.insert("threads", {
-      userId: args.userId,
+      userId: user.subject!,
       title: args.title,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -34,6 +42,17 @@ export const updateThreads = mutation({
     newTitle: v.string(),
   },
   handler: async (ctx, args) => {
-    return ctx.db.patch(args.threadId, { title: args.newTitle });
+    const user = await ctx.auth.getUserIdentity();
+    if (user == null) {
+      throw new Error("Not Authorized");
+    }
+    const thread = await ctx.db.get(args.threadId);
+    if (!thread || thread.userId !== user.subject!) {
+      throw new Error("No Thread Found");
+    }
+    return ctx.db.patch(args.threadId, {
+      title: args.newTitle,
+      updatedAt: Date.now(),
+    });
   },
 });

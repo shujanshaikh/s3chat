@@ -1,17 +1,59 @@
-import { DEFAULT_MODEL, groupModelsByProvider, getModelInfo } from "@/lib/models";
-import { useChat } from "@ai-sdk/react";
+import {
+  DEFAULT_MODEL,
+  groupModelsByProvider,
+  getModelInfo,
+} from "@/lib/models";
+import { Message, useChat } from "@ai-sdk/react";
 import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 
-export default function Chat() {
+export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { threadId } = props;
+
+  const initialMessages = useQuery(api.messages.getMessages, {
+    threadId: threadId!,
+  });
+  const createMessage = useMutation(api.messages.createMessage);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
-      body: {
-        model: selectedModel,
+      initialMessages: initialMessages?.map((message) => ({
+        id: message._id,
+        role: message.role,
+        content: message.content,
+      })),
+      body: { model: selectedModel },
+      onFinish: async (message: Message) => {
+        await createMessage({
+          threadId: threadId!,
+          role: "assistant",
+          content: message.content,
+          model: selectedModel,
+        });
       },
     });
+
+
+    //Handle custom form submission
+    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!input.trim() || isLoading) return;
+  
+      // Save the user's message to Convex immediately
+      await createMessage({
+        threadId: threadId!,
+        role: "user",
+        content: input,
+        model: selectedModel, 
+      });
+  
+      // Call the original handleSubmit from useChat to send the message to the AI
+      handleSubmit(e);
+    };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -219,7 +261,7 @@ export default function Chat() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  handleSubmit(e);
+                  handleFormSubmit(e as unknown as  React.FormEvent<HTMLFormElement>);
                 }
               }}
             />
@@ -278,7 +320,7 @@ export default function Chat() {
                           </button>
                         ))}
                       </div>
-                    ),
+                    )
                   )}
                 </div>
               )}

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/frontend/components/ui/theme-provider';
-import { ConvexClientProvider } from './ConvexClientProvider';
+import ConvexClientProvider from '../frontend/components/ConvexProviderWithClerk';
+import { ClerkProvider } from '@clerk/nextjs';
 
 
 const geistSans = Geist({
@@ -36,9 +37,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConvexClientProvider>
-            {children}
-          </ConvexClientProvider>
+          <ClerkProvider>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>
