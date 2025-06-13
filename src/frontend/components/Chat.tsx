@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
+import MemoizedMarkdown from "./MemorizedMarkdown"; 
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
@@ -37,34 +38,30 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       },
     });
 
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-    //Handle custom form submission
-    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!input.trim() || isLoading) return;
-  
-      // Save the user's message to Convex immediately
-      await createMessage({
-        threadId: threadId!,
-        role: "user",
-        content: input,
-        model: selectedModel, 
-      });
-  
-      // Call the original handleSubmit from useChat to send the message to the AI
-      handleSubmit(e);
-    };
+    // Save the message to the database
+    await createMessage({
+      threadId: threadId!,
+      role: "user",
+      content: input,
+      model: selectedModel,
+    });
+
+    handleSubmit(e);
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -86,111 +83,6 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       <div className="size-1.5 animate-[bounce_1s_infinite] rounded-full bg-gray-400"></div>
     </div>
   );
-
-  const copyToClipboard = async (text: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedCode(id);
-      setTimeout(() => setCopiedCode(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
-
-  const formatMessage = (content: string) => {
-    // Split content by code blocks
-    const parts = content.split(/(```[\s\S]*?```|`[^`]+`)/g);
-
-    return parts.map((part, index) => {
-      if (part.startsWith("```") && part.endsWith("```")) {
-        // Multi-line code block
-        const code = part.slice(3, -3);
-        const lines = code.split("\n");
-        const language = lines[0].trim();
-        const codeContent = lines.slice(1).join("\n");
-        const codeId = `code-${index}-${Date.now()}`;
-
-        return (
-          <div
-            key={index}
-            className="my-4 overflow-hidden rounded-xl border border-gray-700/30 bg-[#0d1117] shadow-lg"
-          >
-            <div className="flex items-center justify-between border-b border-gray-700/30 bg-[#161b22] px-4 py-3">
-              <span className="font-mono text-xs font-medium text-gray-400">
-                {language || "code"}
-              </span>
-              <button
-                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-all duration-200 ${
-                  copiedCode === codeId
-                    ? "border-green-500/30 bg-green-500/20 text-green-400"
-                    : "border-transparent text-gray-400 hover:bg-gray-700/50 hover:text-gray-300"
-                }`}
-                onClick={() => copyToClipboard(codeContent, codeId)}
-                aria-label="Copy code"
-              >
-                {copiedCode === codeId ? (
-                  <>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <polyline points="20,6 9,17 4,12"></polyline>
-                    </svg>
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect
-                        x="9"
-                        y="9"
-                        width="13"
-                        height="13"
-                        rx="2"
-                        ry="2"
-                      ></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-            <pre className="overflow-x-auto p-4">
-              <code className="font-mono text-sm leading-relaxed text-gray-300">
-                {codeContent}
-              </code>
-            </pre>
-          </div>
-        );
-      } else if (part.startsWith("`") && part.endsWith("`")) {
-        // Inline code
-        const code = part.slice(1, -1);
-        return (
-          <code
-            key={index}
-            className="rounded-md border border-gray-700/30 bg-[#0d1117] px-2 py-1 font-mono text-sm text-purple-300"
-          >
-            {code}
-          </code>
-        );
-      } else {
-        // Regular text
-        return <span key={index}>{part}</span>;
-      }
-    });
-  };
 
   const groupedModels = groupModelsByProvider();
   const currentModel = getModelInfo(selectedModel);
@@ -220,9 +112,11 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                 >
                   <div className="text-sm leading-relaxed">
                     {message.role === "assistant" ? (
-                      <div className="text-pretty whitespace-pre-wrap">
-                        {formatMessage(message.content)}
-                      </div>
+                      <MemoizedMarkdown
+                        content={message.content}
+                        id={message.id}
+                        size="default"
+                      />
                     ) : (
                       <div className="text-pretty whitespace-pre-wrap">
                         {message.content}
@@ -249,7 +143,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
 
       {/* Floating Input */}
       <div className="p-4 pb-6">
-        <form onSubmit={handleSubmit} className="mx-auto max-w-4xl">
+        <form onSubmit={handleFormSubmit} className="mx-auto max-w-4xl">
           <div className="relative flex flex-col rounded-2xl border border-purple-400/20 bg-[#1a1a1a]/90 shadow-2xl shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:border-purple-400/30 focus-within:border-purple-400/50 focus-within:shadow-purple-400/10 focus-within:ring-1 focus-within:ring-purple-400/30">
             <textarea
               value={input}
@@ -261,7 +155,9 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  handleFormSubmit(e as unknown as  React.FormEvent<HTMLFormElement>);
+                  handleFormSubmit(
+                    e as unknown as React.FormEvent<HTMLFormElement>
+                  );
                 }
               }}
             />
