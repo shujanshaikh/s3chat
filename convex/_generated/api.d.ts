@@ -16,6 +16,8 @@ import type {
 import type * as messages from "../messages.js";
 import type * as messagesummary from "../messagesummary.js";
 import type * as threads from "../threads.js";
+import type * as usage from "../usage.js";
+import type * as user from "../user.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -29,6 +31,8 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   messagesummary: typeof messagesummary;
   threads: typeof threads;
+  usage: typeof usage;
+  user: typeof user;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

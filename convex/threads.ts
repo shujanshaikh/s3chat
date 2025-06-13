@@ -1,3 +1,4 @@
+import { Id } from "./_generated/dataModel";
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -10,7 +11,7 @@ export const getThreads = query({
     }
     return await ctx.db
       .query("threads")
-      .withIndex("by_userId", (q) => q.eq("userId", user.subject!))
+      .withIndex("by_userId", (q) => q.eq("userId", user.subject! as Id<"users">))
       .order("desc") // Order by last updated, or created at
       .take(200);
   },
@@ -27,7 +28,7 @@ export const create = mutation({
       throw new Error("Not Authorized");
     }
     const threads = await ctx.db.insert("threads", {
-      userId: user.subject!,
+      userId: user.subject! as Id<"users">,
       title: args.title,
       createdAt: Date.now(),
       updatedAt: Date.now(),
