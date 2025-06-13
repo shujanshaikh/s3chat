@@ -10,6 +10,8 @@ export default function ChatLayout() {
   const threads = useQuery(api.threads.getThreads);
   const [collapsed, setCollapsed] = useState(false);
 
+
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLocaleLowerCase() === "b") {

@@ -8,6 +8,9 @@ import { api } from "../../../../convex/_generated/api";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+const FREE_LIMIT = 1000;
+const PRO_LIMIT = 10000;
+
 export async function POST(req: NextRequest) {
   try {
     const { userId: clerkId } = await auth();
@@ -25,6 +28,29 @@ export async function POST(req: NextRequest) {
       email: user.emailAddresses[0].emailAddress,
       name: user.fullName || "",
     });
+
+    const converUser = await convex.query(api.user.getUserById, {
+      userId: convexUserId,
+    });
+
+    const userUsage = await convex.query(api.usage.getUsage, {
+      userId: convexUserId,
+    });
+
+    if (
+      converUser?.plan === "free" &&
+      userUsage &&
+      userUsage.totalTokens >= FREE_LIMIT
+    ) {
+      return new Response("Free limit reached", { status: 403 });
+    }
+    if (
+      converUser?.plan === "pro" &&
+      userUsage &&
+      userUsage.totalTokens >= PRO_LIMIT
+    ) {
+      return new Response("Pro limit reached", { status: 403 });
+    }
 
     const { messages, model } = await req.json();
 
