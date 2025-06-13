@@ -12,8 +12,8 @@ interface MessageSummary {
 }
 
 export const useMessageSummary = () => {
-  const updatedMessage = useMutation(api.threads.updateThreads);
-  const createThread = useMutation(api.threads.createMessageSummary);
+  const createMessageSummary = useMutation(api.messagesummary.createMessageSummary);
+  const updateThread = useMutation(api.threads.updateThreads);
 
   const { complete, isLoading } = useCompletion({
     api: "/api/generatetitle",
@@ -24,17 +24,17 @@ export const useMessageSummary = () => {
         if (response.ok) {
           const { title, isTitle, threadId, messageId } = payload;
           if (isTitle) {
-            await updatedMessage({
+            await updateThread({
               threadId,
               newTitle: title,
             });
-            await createThread({
-              title,
+            await createMessageSummary({
               threadId,
               messageId,
+              title,
             });
           } else {
-            await createThread({
+            await createMessageSummary({
               title,
               threadId,
               messageId,
