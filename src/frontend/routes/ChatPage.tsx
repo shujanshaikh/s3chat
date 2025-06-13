@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import Chat from "../components/Chat"; // Adjust path to your Chat component
 import { Id } from "../../../convex/_generated/dataModel"; // Adjust path
+import RedirectToNewThread from "../components/RedirectToNewThread";
 
 export default function ChatPage() {
   // Get the threadId from the URL
@@ -8,7 +9,7 @@ export default function ChatPage() {
 
   // This is a safeguard in case the URL is somehow invalid
   if (!threadId) {
-    return <div>Invalid Chat ID</div>;
+    return <RedirectToNewThread />;
   }
 
   // Render the Chat component and pass the threadId as both a prop AND the key.

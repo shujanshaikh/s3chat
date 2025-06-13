@@ -194,3 +194,18 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
 }
+
+
+
+.geist-mono-200 {
+  font-family: "Geist Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.logo-montserrat {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
