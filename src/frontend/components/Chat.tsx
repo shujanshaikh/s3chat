@@ -8,12 +8,16 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
-import MemoizedMarkdown from "./MemorizedMarkdown"; 
+import MemoizedMarkdown from "./MemorizedMarkdown";
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { threadId } = props;
+
+  // State and Ref for the scroll-to-bottom button
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const initialMessages = useQuery(api.messages.getMessages, {
     threadId: threadId!,
@@ -56,11 +60,24 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll 
-  useEffect(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isLoading]);
+  };
 
+  
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isAtBottom = scrollHeight - scrollTop <= clientHeight + 20;
+      setShowScrollButton(!isAtBottom);
+    }
+  };
+
+  
+  useEffect(() => {
+    handleScroll();
+  }, [messages]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,7 +107,11 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   return (
     <div className="flex h-dvh flex-col bg-[#0a0a0a]">
       {/* Messages */}
-      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 scroll-smooth">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 scroll-smooth"
+      >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
           {messages.map((message, index) => (
             <div
@@ -138,6 +159,33 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
             </div>
           )}
         </div>
+
+        {/* Scroll to Bottom Button */}
+        {showScrollButton && (
+          <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
+            <button
+              onClick={scrollToBottom}
+              className="flex animate-in fade-in-0 slide-in-from-bottom-3 duration-300 ease-out items-center gap-2 rounded-full bg-black/30 px-4 py-2 text-sm text-white backdrop-blur-sm transition-all hover:bg-black/50"
+              aria-label="Scroll to bottom"
+            >
+              Scroll to bottom
+              <svg
+                className="size-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
