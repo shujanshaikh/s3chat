@@ -22,7 +22,7 @@ export default function RedirectToThread() {
   }, [threads]);
 
   return (
-    <div className="flex items-center justify-center h-screen text-white">
+    <div>
       Loading your chat...
     </div>
   );

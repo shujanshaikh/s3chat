@@ -10,11 +10,9 @@ export default function ChatLayout() {
   const threads = useQuery(api.threads.getThreads);
   const [collapsed, setCollapsed] = useState(false);
 
-
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLocaleLowerCase() === "b") {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
         e.preventDefault();
         setCollapsed((prev) => !prev);
       }
@@ -26,69 +24,68 @@ export default function ChatLayout() {
   return (
     <div className="flex h-dvh flex-row-reverse">
       {/* Sidebar */}
-      <div
-        className={`relative flex flex-col border-l border-gray-800 bg-[#111] p-4 transition-all duration-300
-          ${collapsed ? "w-16 min-w-[4rem]" : "w-72 min-w-[18rem]"}
-        `}
-      >
-        {/* Collapse Button */}
-        <button
-          className="absolute top-4 right-4 z-10 bg-gray-900 rounded-full p-1 hover:bg-purple-700 transition"
-          onClick={() => setCollapsed((c) => !c)}
-          title={
-            collapsed ? "Expand sidebar (Ctrl+B)" : "Collapse sidebar (Ctrl+B)"
-          }
+      {!collapsed && (
+        <div
+          className="relative flex flex-col border-l border-gray-800 bg-[#111] p-4 w-72 min-w-[18rem] transition-all duration-300"
         >
-          {collapsed ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-        </button>
+          {/* Collapse Button */}
+          <button
+            className="absolute top-4 right-4 z-10 bg-gray-900 rounded-full p-1 hover:bg-purple-700 transition"
+            onClick={() => setCollapsed(true)}
+            title="Collapse sidebar (Ctrl+B)"
+          >
+            <ChevronRight size={20} />
+          </button>
 
-        {/* Logo */}
-        <h1
-  style={{
-    fontFamily: "'Montserrat', sans-serif",
-    fontWeight: 700,
-    color: "#d6b4d8", // or use Tailwind's text-purple-300
-  }}
-  className={`mb-4 flex self-center text-2xl transition-all duration-300 tracking-tight ${
-    collapsed ? "scale-0 h-0 mb-0" : "scale-100 h-auto"
-  }`}
->
-  S3.chat
-</h1>
+          {/* Logo */}
+          <h1
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 700,
+              color: "#d6b4d8",
+            }}
+            className="mb-4 flex self-center text-2xl transition-all duration-300 tracking-tight"
+          >
+            S3.chat
+          </h1>
 
-        {/* New Chat Button */}
-        {!collapsed && <NewChatButton />}
+          {/* New Chat Button */}
+          <NewChatButton />
 
-        {/* Threads List */}
-        <nav
-          className={`mt-6 flex-1 space-y-2 overflow-y-auto transition-all duration-300 ${
-            collapsed
-              ? "opacity-0 pointer-events-none h-0"
-              : "opacity-100 h-auto"
-          }`}
-        >
-          {threads?.map((thread) => (
-            <NavLink
-              key={thread._id}
-              to={`/chat/${thread._id}`}
-              className={({ isActive }) =>
-                `block rounded-md px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700/50 ${
-                  isActive ? "bg-purple-500/20 text-white" : ""
-                }`
-              }
-            >
-              {thread.title || "New Chat"}
-            </NavLink>
-          ))}
-        </nav>
+          {/* Threads List */}
+          <nav className="mt-6 flex-1 space-y-2 overflow-y-auto transition-all duration-300">
+            {threads?.map((thread) => (
+              <NavLink
+                key={thread._id}
+                to={`/chat/${thread._id}`}
+                className={({ isActive }) =>
+                  `block rounded-md px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700/50 ${
+                    isActive ? "bg-purple-500/20 text-white" : ""
+                  }`
+                }
+              >
+                {thread.title || "New Chat"}
+              </NavLink>
+            ))}
+          </nav>
 
-        {/* User Menu - Only show when not collapsed */}
-        {!collapsed && (
+          {/* User Menu */}
           <div className="flex flex-col gap-2 mt-4">
             <UserMenu />
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Floating Expand Button */}
+      {collapsed && (
+        <button
+          className="fixed top-6 right-6 z-50 bg-gray-900 rounded-full p-2 shadow-lg hover:bg-purple-700 transition"
+          onClick={() => setCollapsed(false)}
+          title="Expand sidebar (Ctrl+B)"
+        >
+          <ChevronLeft size={24} className="text-purple-300" />
+        </button>
+      )}
 
       {/* Main Content */}
       <main className="flex-1">
