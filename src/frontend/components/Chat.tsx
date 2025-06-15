@@ -106,9 +106,9 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 scroll-smooth"
+        className="relative flex flex-1 flex-col gap-3 sm:gap-6 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6 scroll-smooth pb-2 sm:pb-4"
       >
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-8">
           {messages.map((message, index) => (
             <div
               key={message.id}
@@ -119,16 +119,16 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
             >
               {message.role === "user" ? (
                 // --- USER MESSAGE STYLING ---
-                <div className="max-w-[80%] p-2">
-                  <div className="relative rounded-2xl bg-[#51495f] px-5 py-4 text-white">
-                    <div className="whitespace-pre-wrap break-words text-pretty text-gray-100">
+                <div className="max-w-[85%] sm:max-w-[80%] p-1 sm:p-2">
+                  <div className="relative rounded-xl sm:rounded-2xl bg-[#51495f] px-3 sm:px-5 py-3 sm:py-4 text-white">
+                    <div className="whitespace-pre-wrap break-words text-pretty text-gray-100 text-sm sm:text-base leading-relaxed">
                       {message.content}
                     </div>
                   </div>
                 </div>
               ) : (
                 // --- ASSISTANT MESSAGE STYLING ---
-                <div className="flex w-full max-w-full items-start gap-4 pl-4">
+                <div className="flex w-full max-w-full items-start gap-2 sm:gap-4 pl-2 sm:pl-4">
                   <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none">
                     <MemoizedMarkdown 
                       content={message.content}
@@ -154,15 +154,16 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
 
         {/* Scroll to Bottom Button */}
         {showScrollButton && (
-          <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2">
+          <div className="absolute bottom-4 sm:bottom-6 left-1/2 z-10 -translate-x-1/2">
             <button
               onClick={scrollToBottom}
-              className="flex animate-in fade-in-0 slide-in-from-bottom-3 duration-300 ease-out items-center gap-2 rounded-full bg-black/30 px-4 py-2 text-sm text-white backdrop-blur-sm transition-all hover:bg-black/50"
+              className="flex animate-in fade-in-0 slide-in-from-bottom-3 duration-300 ease-out items-center gap-1 sm:gap-2 rounded-full bg-black/30 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-white backdrop-blur-sm transition-all hover:bg-black/50 touch-manipulation"
               aria-label="Scroll to bottom"
             >
-              Scroll to bottom
+              <span className="hidden xs:inline">Scroll to bottom</span>
+              <span className="xs:hidden">↓</span>
               <svg
-                className="size-4"
+                className="size-3 sm:size-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -181,17 +182,17 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Input */}
-      <div className="p-4 pb-6">
+      {/* Floating Input - Fixed positioning */}
+      <div className="flex-shrink-0 p-2 sm:p-4 pb-safe-bottom">
         <form onSubmit={handleFormSubmit} className="mx-auto max-w-4xl">
-          <div className="relative flex flex-col rounded-2xl border border-purple-400/20 bg-[#1a1a1a]/90 shadow-2xl shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:border-purple-400/30 focus-within:border-purple-400/50 focus-within:shadow-purple-400/10 focus-within:ring-1 focus-within:ring-purple-400/30">
+          <div className="relative flex flex-col rounded-xl sm:rounded-2xl border border-purple-400/20 bg-[#1a1a1a]/90 shadow-2xl shadow-black/20 backdrop-blur-xl transition-all duration-200 hover:border-purple-400/30 focus-within:border-purple-400/50 focus-within:shadow-purple-400/10 focus-within:ring-1 focus-within:ring-purple-400/30">
             <textarea
               value={input}
               onChange={handleInputChange}
               placeholder={`Ask ${currentModel?.name}...`}
               disabled={isLoading}
               rows={1}
-              className="min-h-[56px] max-h-48 w-full flex-1 resize-none bg-transparent p-4 pb-12 text-sm leading-6 text-gray-100 selection:bg-purple-400/30 placeholder:text-gray-500 focus:outline-none"
+              className="min-h-[44px] sm:min-h-[52px] max-h-28 sm:max-h-40 w-full flex-1 resize-none bg-transparent p-3 sm:p-4 pb-10 sm:pb-12 text-sm leading-5 sm:leading-6 text-gray-100 selection:bg-purple-400/30 placeholder:text-gray-500 focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -203,14 +204,14 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
             />
 
             {/* Controls positioned absolutely within the container */}
-            <div className="absolute bottom-3 left-3" ref={dropdownRef}>
+            <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3" ref={dropdownRef}>
               {/* Drop-up Menu */}
               {isDropdownOpen && (
-                <div className="absolute bottom-full mb-2 w-72 origin-bottom-left rounded-xl border border-gray-700/50 bg-[#1a1a1a] shadow-2xl shadow-black/50 z-50 max-h-80 overflow-y-auto">
+                <div className="absolute bottom-full mb-2 w-64 sm:w-72 origin-bottom-left rounded-xl border border-gray-700/50 bg-[#1a1a1a] shadow-2xl shadow-black/50 z-50 max-h-60 sm:max-h-80 overflow-y-auto">
                   {Object.entries(groupedModels).map(
                     ([provider, providerModels]) => (
                       <div key={provider}>
-                        <div className="border-b border-gray-700/30 bg-[#161616] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <div className="border-b border-gray-700/30 bg-[#161616] px-3 sm:px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
                           {provider}
                         </div>
                         {providerModels.map((model) => (
@@ -221,24 +222,24 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                               setSelectedModel(model.id);
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full border-b border-gray-800/30 px-4 py-3 text-left transition-colors duration-150 last:border-b-0 hover:bg-[#222] ${
+                            className={`w-full border-b border-gray-800/30 px-3 sm:px-4 py-2.5 sm:py-3 text-left transition-colors duration-150 last:border-b-0 hover:bg-[#222] touch-manipulation ${
                               selectedModel === model.id
                                 ? "border-l-2 border-l-purple-500 bg-purple-500/10"
                                 : ""
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <div>
-                                <div className="text-sm font-medium text-gray-200">
+                              <div className="min-w-0 flex-1 mr-2">
+                                <div className="text-xs sm:text-sm font-medium text-gray-200 truncate">
                                   {model.name}
                                 </div>
-                                <div className="mt-1 text-xs text-gray-500">
+                                <div className="mt-1 text-xs text-gray-500 line-clamp-2">
                                   {model.description}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                                 <span
-                                  className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                  className={`rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium ${
                                     model.category === "Premium"
                                       ? "bg-yellow-500/20 text-yellow-400"
                                       : model.category === "Fast"
@@ -249,7 +250,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                                   {model.category}
                                 </span>
                                 {selectedModel === model.id && (
-                                  <div className="size-2 rounded-full bg-purple-500"></div>
+                                  <div className="size-1.5 sm:size-2 rounded-full bg-purple-500"></div>
                                 )}
                               </div>
                             </div>
@@ -264,12 +265,12 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-black/20 px-3 py-1.5 text-xs text-gray-300 transition-all duration-200 hover:bg-black/40"
+                className="flex items-center gap-1 sm:gap-2 whitespace-nowrap rounded-lg bg-black/20 px-2 sm:px-3 py-1 sm:py-1.5 text-xs text-gray-300 transition-all duration-200 hover:bg-black/40 touch-manipulation"
                 aria-label="Select model"
               >
-                <span className="font-medium">{currentModel?.name}</span>
+                <span className="font-medium truncate max-w-[100px] sm:max-w-none">{currentModel?.name}</span>
                 <svg
-                  className={`size-3 text-gray-400 transition-transform duration-200 ${
+                  className={`size-2.5 sm:size-3 text-gray-400 transition-transform duration-200 flex-shrink-0 ${
                     isDropdownOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -289,11 +290,11 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="absolute bottom-3 right-3 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 p-2.5 text-white shadow-lg transition-all duration-200 hover:from-purple-400 hover:to-purple-500 hover:shadow-purple-500/25 active:scale-95 disabled:cursor-not-allowed disabled:from-gray-700 disabled:to-gray-800 disabled:shadow-none"
+              className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 p-2 sm:p-2.5 text-white shadow-lg transition-all duration-200 hover:from-purple-400 hover:to-purple-500 hover:shadow-purple-500/25 active:scale-95 disabled:cursor-not-allowed disabled:from-gray-700 disabled:to-gray-800 disabled:shadow-none touch-manipulation"
               aria-label="Send message"
             >
               <svg
-                className="size-5"
+                className="size-4 sm:size-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
