@@ -33,19 +33,19 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
   if (langMatch) {
     const lang = langMatch[1];
     return (
-      <div className="overflow-hidden rounded-md" style={{ border: 'none', outline: 'none' }}>
+      <div className="overflow-hidden rounded-md sm:rounded-lg my-2 sm:my-4 max-w-full" style={{ border: 'none', outline: 'none' }}>
         <CopyClipBoard lang={lang} codeString={String(children)} />
-        <div style={{ border: 'none', outline: 'none', borderRadius: '0', padding: '0', margin: '0' }}>
+        <div className="overflow-x-auto" style={{ border: 'none', outline: 'none', borderRadius: '0', padding: '0', margin: '0' }}>
           <ShikiHighlighter
             language={lang}
             theme={"rose-pine"}
-            className="text-sm font-mono block"
+            className="text-xs sm:text-sm font-mono block !bg-transparent min-w-full"
             showLanguage={false}
             style={{ 
               border: 'none', 
               outline: 'none', 
               borderRadius: '0',
-              padding: '16px',
+              padding: '12px 16px',
               margin: '0'
             }}
           >
@@ -58,8 +58,8 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
 
   const inlineCodeClasses =
     size === "small"
-      ? "mx-0.5 overflow-auto rounded-md px-1 py-0.5 bg-[#51495f] font-mono text-xs"
-      : "mx-0.5 overflow-auto rounded-md px-2 py-1 bg-[#51495f] font-mono";
+      ? "mx-0.5 overflow-auto rounded px-1 py-0.5 bg-[#51495f] font-mono text-xs break-all"
+      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-[#51495f] font-mono text-xs sm:text-sm break-all";
 
   return (
     <code className={inlineCodeClasses} {...props}>
@@ -82,8 +82,7 @@ function CopyClipBoard({
       await navigator.clipboard.writeText(codeString);
       setCopy(true);
       toast.success("Copied to clipboard");
-      setInterval(() => {
-        
+      setTimeout(() => {
         setCopy(false);
       }, 2000);
     } catch (error) {
@@ -92,10 +91,14 @@ function CopyClipBoard({
   };
 
   return (
-    <div className="flex justify-between items-center px-4 py-2 bg-[#51495f] text-foreground rounded-t-md">
-      <span className="text-sm font-mono">{lang}</span>
-      <button onClick={copyToClipBoard} className="text-sm cursor-pointer">
-        {copy ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+    <div className="flex justify-between items-center px-2 sm:px-3 xl:px-4 py-2 sm:py-2.5 xl:py-3 bg-[#51495f] text-foreground rounded-t-md border-b border-[#3a3340]">
+      <span className="text-xs sm:text-sm font-mono truncate flex-1 mr-2">{lang}</span>
+      <button 
+        onClick={copyToClipBoard} 
+        className="text-xs sm:text-sm cursor-pointer p-1 sm:p-1.5 hover:bg-black/20 rounded transition-colors flex-shrink-0 touch-manipulation"
+        aria-label={copy ? "Copied!" : "Copy code"}
+      >
+        {copy ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : <Copy className="w-3 h-3 sm:w-4 sm:h-4" />}
         <Toaster position="bottom-center" richColors={false} duration={2000} />
       </button>
     </div>
@@ -129,40 +132,38 @@ const MarkDownBlock = memo(
 
 MarkDownBlock.displayName = "MarkdownRendererBlock";
 
-
 const MemoizedMarkdown = memo(
-    ({
-      content,
-      id,
-      size = 'default',
-    }: {
-      content: string;
-      id: string;
-      size?: MarkDownSize;
-    }) => {
-      const blocks = useMemo(() => parsedMarkDownintoBlocksa(content), [content]);
-  
-      const proseClasses =
-      size === 'small'
-      ? 'prose prose-sm dark:prose-invert bread-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none'
-      : 'prose prose-base dark:prose-invert bread-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none';
+  ({
+    content,
+    id,
+    size = 'default',
+  }: {
+    content: string;
+    id: string;
+    size?: MarkDownSize;
+  }) => {
+    const blocks = useMemo(() => parsedMarkDownintoBlocksa(content), [content]);
 
-      return (
-        <MarkDownComponent.Provider value={size}>
-          <div className={proseClasses}>
-            {blocks.map((block, index) => (
-              <MarkDownBlock
-                content={block}
-                key={`${id}-block-${index}`}
-              />
-            ))}
-          </div>
-        </MarkDownComponent.Provider>
-      );
-    }
-  );
-  
-  MemoizedMarkdown.displayName = 'MemoizedMarkdown';
-  
-  export default MemoizedMarkdown;
-  
+    const proseClasses =
+      size === 'small'
+        ? 'prose prose-sm dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:m-0 prose-pre:bg-transparent prose-headings:break-words prose-p:break-words prose-headings:text-sm prose-p:text-sm prose-headings:leading-tight prose-p:leading-relaxed'
+        : 'prose prose-sm sm:prose-base dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:m-0 prose-pre:bg-transparent prose-headings:break-words prose-p:break-words prose-headings:leading-tight prose-p:leading-relaxed prose-headings:text-sm prose-p:text-sm sm:prose-headings:text-base sm:prose-p:text-base prose-ul:text-sm sm:prose-ul:text-base prose-ol:text-sm sm:prose-ol:text-base prose-li:text-sm sm:prose-li:text-base';
+
+    return (
+      <MarkDownComponent.Provider value={size}>
+        <div className={proseClasses}>
+          {blocks.map((block, index) => (
+            <MarkDownBlock
+              content={block}
+              key={`${id}-block-${index}`}
+            />
+          ))}
+        </div>
+      </MarkDownComponent.Provider>
+    );
+  }
+);
+
+MemoizedMarkdown.displayName = 'MemoizedMarkdown';
+
+export default MemoizedMarkdown;
