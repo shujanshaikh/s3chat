@@ -9,7 +9,6 @@ import { api } from "../../../../convex/_generated/api";
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 const FREE_LIMIT = 1000;
-const PRO_LIMIT = 10000;
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,13 +43,6 @@ export async function POST(req: NextRequest) {
     ) {
       return new Response("Free limit reached", { status: 403 });
     }
-    if (
-      converUser?.plan === "pro" &&
-      userUsage &&
-      userUsage.totalTokens >= PRO_LIMIT
-    ) {
-      return new Response("Pro limit reached", { status: 403 });
-    }
 
     const { messages, model } = await req.json();
 
@@ -64,7 +56,7 @@ export async function POST(req: NextRequest) {
         await convex.mutation(api.usage.createUsage, {
           userId: convexUserId,
           model: model || DEFAULT_MODEL,
-          totalTokens: result.usage.completionTokens,
+          totalTokens: result.steps[result.steps.length - 1].usage.completionTokens,
         });
       },
     });

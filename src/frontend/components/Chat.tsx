@@ -15,7 +15,6 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { threadId } = props;
 
-  // State and Ref for the scroll-to-bottom button
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +45,6 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    // Save the message to the database
     await createMessage({
       threadId: threadId!,
       role: "user",
@@ -64,7 +62,6 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  
   const handleScroll = () => {
     const container = scrollContainerRef.current;
     if (container) {
@@ -74,10 +71,9 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     }
   };
 
-  
   useEffect(() => {
     handleScroll();
-  }, [messages]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -105,14 +101,14 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   const currentModel = getModelInfo(selectedModel);
 
   return (
-    <div className="flex h-dvh flex-col bg-[#0a0a0a]">
+    <div className="flex h-dvh flex-col bg-[#2b2832]">
       {/* Messages */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
         className="relative flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-6 scroll-smooth"
       >
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
           {messages.map((message, index) => (
             <div
               key={message.id}
@@ -121,31 +117,27 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               }`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div
-                className={`${message.role === "user" ? "w-[60%]" : "w-full"}`}
-              >
-                <div
-                  className={`relative rounded-2xl px-5 py-4 ${
-                    message.role === "user"
-                      ? "bg-gradient-to-br from-gray-800 to-gray-900 text-white text-pretty whitespace-pre-wrap"
-                      : "border border-gray-800/50 bg-[#1a1a1a] text-gray-100 shadow-lg"
-                  }`}
-                >
-                  <div className="text-sm leading-relaxed">
-                    {message.role === "assistant" ? (
-                      <MemoizedMarkdown
-                        content={message.content}
-                        id={message.id}
-                        size="default"
-                      />
-                    ) : (
-                      <div className="text-pretty whitespace-pre-wrap">
-                        {message.content}
-                      </div>
-                    )}
+              {message.role === "user" ? (
+                // --- USER MESSAGE STYLING ---
+                <div className="max-w-[80%] p-2">
+                  <div className="relative rounded-2xl bg-[#51495f] px-5 py-4 text-white">
+                    <div className="whitespace-pre-wrap break-words text-pretty text-gray-100">
+                      {message.content}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                // --- ASSISTANT MESSAGE STYLING ---
+                <div className="flex w-full max-w-full items-start gap-4 pl-4">
+                  <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none">
+                    <MemoizedMarkdown 
+                      content={message.content}
+                      id={message.id}
+                      size="default"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
 

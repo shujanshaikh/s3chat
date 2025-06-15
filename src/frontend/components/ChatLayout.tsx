@@ -26,7 +26,7 @@ export default function ChatLayout() {
       {/* Sidebar */}
       {!collapsed && (
         <div
-          className="relative flex flex-col border-l border-gray-800 bg-[#111] p-4 w-72 min-w-[18rem] transition-all duration-300"
+          className="relative flex flex-col border-purple-900 bg-[#2f2f32] border-2 p-4 w-72 min-w-[18rem] transition-all duration-300"
         >
           {/* Collapse Button */}
           <button
@@ -51,7 +51,6 @@ export default function ChatLayout() {
 
           {/* New Chat Button */}
           <NewChatButton />
-
           {/* Threads List */}
           <nav className="mt-6 flex-1 space-y-2 overflow-y-auto transition-all duration-300">
             {threads?.map((thread) => (
