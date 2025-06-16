@@ -22,7 +22,7 @@ export const useMessageSummary = () => {
         const payload: MessageSummary = await response.json();
 
         if (response.ok) {
-          const { title, isTitle, threadId, messageId } = payload;
+          const { title, isTitle, threadId } = payload;
           if (isTitle) {
             await updateThread({
               threadId,
@@ -30,14 +30,12 @@ export const useMessageSummary = () => {
             });
             await createMessageSummary({
               threadId,
-              messageId,
               title,
             });
           } else {
             await createMessageSummary({
               title,
               threadId,
-              messageId,
             });
           }
         }

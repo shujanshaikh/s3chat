@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const { prompt, isTitle, threadId } = await req.json();
 
     const { text: title } = await generateText({
-      model: google("gemini-2.0-flash-001"),
+      model: google("gemini-1.5-flash"),
       prompt,
       system: `\n
       - you will generate a short title based on the first message a user begins a conversation with

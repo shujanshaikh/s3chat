@@ -4,7 +4,6 @@ import { mutation } from "./_generated/server";
 export const createMessageSummary = mutation({
     args: {
       threadId: v.id("threads"),
-      messageId: v.id("messages"),
       title: v.string(),
     },
     handler: async (ctx, args) => {
@@ -14,7 +13,6 @@ export const createMessageSummary = mutation({
       }
       const messageSummary = await ctx.db.insert("messages_summary", {
         threadId: args.threadId,
-        messageId: args.messageId,
         title: args.title,
         createdAt: Date.now(),
       })

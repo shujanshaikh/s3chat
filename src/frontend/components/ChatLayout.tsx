@@ -1,16 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
 import { NewChatButton } from "./NewChatButton";
 import { UserMenu } from "./auth/UserMenu";
 import { ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { useMessageSummary } from "../hooks/useMessageSummary";
+import { Id } from "../../../convex/_generated/dataModel";
 
 export default function ChatLayout() {
   const threads = useQuery(api.threads.getThreads);
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const processedThreadsRef = useRef(new Set<string>());
+  const { threadId: currentThreadId } = useParams<{
+    threadId: Id<"threads">;
+  }>();
+
+  const messageSummary = useQuery(api.messages.getMessages, {
+    threadId: currentThreadId!,
+  });
+
+  const { complete, isLoading } = useMessageSummary();
 
   // Check if mobile and handle resize
   useEffect(() => {
@@ -26,8 +38,8 @@ export default function ChatLayout() {
     };
 
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Handle keyboard shortcuts
@@ -43,8 +55,8 @@ export default function ChatLayout() {
       }
     };
 
-    document.addEventListener('keydown', handleKeyboard);
-    return () => document.removeEventListener('keydown', handleKeyboard);
+    document.addEventListener("keydown", handleKeyboard);
+    return () => document.removeEventListener("keydown", handleKeyboard);
   }, [collapsed, sidebarOpen, isMobile]);
 
   // Close mobile sidebar when clicking outside
@@ -52,18 +64,21 @@ export default function ChatLayout() {
     if (!isMobile || !sidebarOpen) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      const sidebar = document.getElementById('mobile-sidebar');
-      const menuButton = document.getElementById('mobile-menu-button');
-      
-      if (sidebar && menuButton && 
-          !sidebar.contains(e.target as Node) && 
-          !menuButton.contains(e.target as Node)) {
+      const sidebar = document.getElementById("mobile-sidebar");
+      const menuButton = document.getElementById("mobile-menu-button");
+
+      if (
+        sidebar &&
+        menuButton &&
+        !sidebar.contains(e.target as Node) &&
+        !menuButton.contains(e.target as Node)
+      ) {
         setSidebarOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMobile, sidebarOpen]);
 
   const handleSidebarToggle = () => {
@@ -73,6 +88,54 @@ export default function ChatLayout() {
       setCollapsed(!collapsed);
     }
   };
+
+  useEffect(() => {
+    if (!currentThreadId || !messageSummary || messageSummary.length === 0 || isLoading) {
+      return;
+    }
+  
+    const currentThread = threads?.find((t) => t._id === currentThreadId);
+    if (
+      currentThread && 
+      (!currentThread.title || currentThread.title === "New Chat") &&
+      !processedThreadsRef.current.has(currentThreadId) &&
+      messageSummary.length > 0
+    ) {
+      const firstUserMessage = messageSummary.find((m) => m.role === "user");
+  
+      if (firstUserMessage) {
+        processedThreadsRef.current.add(currentThreadId);
+        
+        const formatMessage = messageSummary.map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+  
+        const lastMessage = messageSummary[messageSummary.length - 1];
+        const lastMessageId = lastMessage._id;
+  
+        const conversationSummary = formatMessage
+          .slice(0, 5)
+          .map(msg => `${msg.role}: ${msg.content}`)
+          .join('\n');
+  
+        complete(conversationSummary, {
+          body: {
+            threadId: currentThreadId,
+            messageId: lastMessageId,
+            isTitle: true,
+          }
+        });
+      }
+    }
+  }, [currentThreadId, messageSummary?.length, threads?.length]); // More specific dependencies
+  
+  // Clean up processed threads when component unmounts or thread changes
+  useEffect(() => {
+    return () => {
+      processedThreadsRef.current.clear();
+    };
+  }, []);
 
   return (
     <div className="flex h-dvh flex-row-reverse relative">
@@ -106,7 +169,7 @@ export default function ChatLayout() {
 
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -117,14 +180,17 @@ export default function ChatLayout() {
         <div
           id="mobile-sidebar"
           className={`
-            ${isMobile ? 'fixed' : 'relative'} 
+            ${isMobile ? "fixed" : "relative"} 
             flex flex-col border-purple-900 bg-[#2f2f32] border-2 p-3 sm:p-4 w-64 sm:w-72 min-w-[16rem] sm:min-w-[18rem] transition-all duration-300
-            ${isMobile ? 'inset-y-0 right-0 z-50 pt-16' : ''}
-            ${isMobile 
-              ? (sidebarOpen ? 'translate-x-0' : 'translate-x-full')
-              : ''
+            ${isMobile ? "inset-y-0 right-0 z-50 pt-16" : ""}
+            ${
+              isMobile
+                ? sidebarOpen
+                  ? "translate-x-0"
+                  : "translate-x-full"
+                : ""
             }
-            ${isMobile ? 'max-w-[80vw] min-w-[280px]' : ''}
+            ${isMobile ? "max-w-[80vw] min-w-[280px]" : ""}
           `}
         >
           {/* Desktop Close Button */}
@@ -176,7 +242,7 @@ export default function ChatLayout() {
                 to={`/chat/${thread._id}`}
                 onClick={() => isMobile && setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `block rounded-md px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700/50 touch-manipulation min-h-[40px] sm:min-h-[44px] flex items-center ${
+                  ` rounded-md px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700/50 touch-manipulation min-h-[40px] sm:min-h-[44px] flex items-center ${
                     isActive ? "bg-purple-500/20 text-white" : ""
                   }`
                 }
@@ -212,7 +278,7 @@ export default function ChatLayout() {
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 relative ${isMobile ? 'pt-12 sm:pt-14' : ''}`}>
+      <main className={`flex-1 relative ${isMobile ? "pt-12 sm:pt-14" : ""}`}>
         <Outlet />
       </main>
     </div>

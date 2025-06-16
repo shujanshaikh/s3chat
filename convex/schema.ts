@@ -31,7 +31,7 @@ export default defineSchema({
 
    messages_summary : defineTable({
     threadId : v.id("threads"),
-    messageId : v.id("messages"),
+    messageId : v.optional(v.id("messages")),
     title : v.string(),
     createdAt : v.number(),
   }).index("by_thread", ["threadId"]),
