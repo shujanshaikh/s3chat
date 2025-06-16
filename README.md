@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# S3.chat
+
+Welcome to the **s3.chat**! This project is built with Next.js, Convex for the backend database and functions, and integrates with various AI APIs.
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to get your development environment up and running.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Prerequisites
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Before you begin, ensure you have the following installed:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+*   **Bun:** A fast all-in-one JavaScript runtime. [Install Bun](https://bun.sh/docs/installation)
+*   **Node.js (LTS recommended):** While Bun is used for running, Node.js might be a dependency for some tools or libraries. [Install Node.js](https://nodejs.org/en/download/)
+*   **Convex CLI:** You'll need to install the Convex CLI globally.
+    ```bash
+    bunx convex install
+    ```
+*   **Convex Account:** Sign up for a free Convex account at [Convex.dev](https://www.convex.dev/).
+*   **Clerk Account:** Sign up for a free Clerk account at [Clerk.com](https://clerk.com/).
+*   **AI API Keys:** Obtain API keys for the AI models you plan to use (e.g., Google Generative AI, OpenAI, Anthropic, etc.).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Installation
 
-## Learn More
+1.  **Clone the Repository:**
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    git clone https://github.com/shujanshaikh/s3chat.git
+    cd s3chat
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2.  **Install Dependencies:**
+    Use Bun to install the project's dependencies:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    ```bash
+    bun install
+    ```
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project uses environment variables to manage sensitive keys and configurations. You'll need to create two separate `.env` files: `.env.local` for local development API keys and ` .env` for Clerk-related keys.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+ ```bash
+### Backend (Convex & AI APIs)
+
+Create a file named `.env.local` in the root of your project and populate it with your API keys and Convex deployment URL.
+# .env.local
+GOOGLE_GENERATIVE_AI_API_KEY="your_gemini_key"
+OPENAI_API_KEY="your_openai_key"
+ANTHROPIC_API_KEY="your_anthropic_key"
+TOGETHER_API_KEY="your_together_key"
+DEEPSEEK_API_KEY="your_deepseek_key"
+GROQ_API_KEY="your_groq_key"
+
+# Deployment used by `npx convex dev`
+CONVEX_DEPLOYMENT="convex dev key"
+
+NEXT_PUBLIC_CONVEX_URL=
+NEXT_PUBLIC_CLERK_FRONTEND_API_URL=
+
+#.env
+NEXT_PUBLIC_CLERK_FRONTEND_API_URL=
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
