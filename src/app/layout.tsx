@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 's3.chat',
   description: 'Fastest AI Chat App',
+  icons: {
+    icon: '/next.svg',
+  },
 };
 
 export default function RootLayout({

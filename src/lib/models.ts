@@ -73,8 +73,8 @@ export const models: ModelInfo[] = [
     description: "High-performance open-source model",
   },
   {
-    id: "gemini-2.5-pro",
-    name: "Gemini 2.5 Pro",
+    id: "gemini-2.0-flash-exp",
+    name: "Gemini 2.0 Flash Exp",
     provider: "Google",
     category: "Premium",
     description: "Most capable Google model with 1M token context",
@@ -128,10 +128,12 @@ export const getModel = (modelName: string) => {
     // Google Models
     case "gemini-2.5-flash":
       return google("gemini-2.5-flash-preview-04-17");
-    case "gemini-2.5-pro":
-      return google("gemini-2.5-pro-exp-04-24");
+    case "gemini-2.0-flash-exp":
+      return google("gemini-2.0-flash-exp");
     case "gemini-2.0-flash-lite":
       return google("gemini-2.0-flash-lite");
+
+    
 
 
     // Llama Models

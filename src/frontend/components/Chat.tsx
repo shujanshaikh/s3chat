@@ -11,10 +11,13 @@ import { Id } from "../../../convex/_generated/dataModel";
 import MemoizedMarkdown from "./MemorizedMarkdown";
 import MessageBox from "./Message-box";
 import Error from "./ui/error";
+import Image from "next/image";
+import { Copy } from "lucide-react";
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
   const { threadId } = props;
 
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -137,12 +140,34 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               ) : (
                 // Assistant message
                 <div className="flex w-full max-w-full items-start gap-2 sm:gap-4 pl-2 sm:pl-4">
-                  <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none">
+                  <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative">
+                    {/* Copy Button for this assistant message */}
+                    <button
+                      className="rounded transition justify-start p-2 absolute top-0 right-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          message.parts
+                            ? message.parts
+                                .filter((part) => part.type === "text")
+                                .map((part) => part.text)
+                                .join("\n")
+                            : message.content
+                        );
+                        setCopied(message.id);
+                        setTimeout(() => setCopied(null), 1500);
+                      }}
+                      aria-label="Copy response"
+                    >
+                      <Copy
+                        className={`text-white ${copied === message.id ? "text-green-400" : ""}`}
+                        size={16}
+                      />
+                    </button>
                     {/* Check if message has parts (reasoning) or just content */}
                     {message.parts ? (
-                      // Handle structured message with reasoning
-                      message.parts.map((part, index) => (
-                        <div key={index}>
+                      // Handle structured message with reasoning and images
+                      message.parts.map((part, partIndex) => (
+                        <div key={partIndex}>
                           {part.type === "text" && (
                             <MemoizedMarkdown
                               content={part.text}
@@ -150,6 +175,19 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                               size="default"
                             />
                           )}
+                          {part.type === "file" &&
+                            part.mimeType?.startsWith("image/") && (
+                              <div className="my-4">
+                                <Image
+                                  src={`data:${part.mimeType};base64,${part.data}`}
+                                  alt="Generated image"
+                                  className="max-w-full h-auto rounded-lg shadow-lg"
+                                  loading="lazy"
+                                  width={100}
+                                  height={100}
+                                />
+                              </div>
+                            )}
                           {part.type === "reasoning" && (
                             <details className="mb-4 rounded-lg bg-gray-800/50 p-3">
                               <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
@@ -181,7 +219,6 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                   </div>
                 </div>
               )}
-             
             </div>
           ))}
 
@@ -230,7 +267,6 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       </div>
 
       {/* MessageBox Component - Positioned within the chat container */}
-
       <MessageBox
         input={input}
         isLoading={isLoading}
