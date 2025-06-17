@@ -13,6 +13,8 @@ import MessageBox from "./Message-box";
 import Error from "./ui/error";
 import Image from "next/image";
 import { Copy } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "./ui/sonner";
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
@@ -143,7 +145,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                   <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative">
                     {/* Copy Button for this assistant message */}
                     <button
-                      className="rounded transition justify-start p-2 absolute top-0 right-0"
+                      className="rounded transition justify-start p-2 absolute top-0 right-0 cursor-pointer"
                       onClick={() => {
                         navigator.clipboard.writeText(
                           message.parts
@@ -154,6 +156,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                             : message.content
                         );
                         setCopied(message.id);
+                        toast.success("Copied to clipboard");
                         setTimeout(() => setCopied(null), 1500);
                       }}
                       aria-label="Copy response"

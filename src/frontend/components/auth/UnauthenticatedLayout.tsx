@@ -1,4 +1,3 @@
-// components/auth/UnauthenticatedLayout.tsx
 import { Unauthenticated } from "convex/react";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 
@@ -17,18 +16,13 @@ export function UnauthenticatedLayout() {
           >
             Welcome to S3.chat
           </h2>
-          <p className="text-gray-300 mb-6">Sign up or sign in to start chatting!</p>
+          <p className="text-gray-300 mb-6">Login in with Google to start chatting!</p>
         <div className="flex flex-row gap-4 items-center justify-center">
         <SignUpButton>
             <button className="px-6 py-2 bg-gray-600 text-white  hover:bg-purple-700 transition rounded-2xl">
-              Sign Up
+              Login in with Google
             </button>
           </SignUpButton>
-          <SignInButton>
-            <button className="px-6 py-2 bg-gray-600 text-white hover:bg-purple-700 transition rounded-2xl">
-              Sign In
-            </button>
-          </SignInButton>
         </div>
         </div>
       </div>
