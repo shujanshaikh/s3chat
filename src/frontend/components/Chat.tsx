@@ -109,7 +109,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6 scroll-smooth"
+        className="flex-1 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6 scroll-smooth no-scrollbar"
         style={{ paddingBottom: '140px' }} // Reserve space for MessageBox
       >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-8">

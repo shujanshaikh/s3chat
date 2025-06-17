@@ -3,7 +3,7 @@ import { LogOut } from "lucide-react";
 
 export function UserMenu() {
   return (
-    <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r from-purple-900/90 to-purple-800/90 rounded-xl shadow-lg border border-purple-700/30 backdrop-blur-sm">
+    <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r bg-[#392760] rounded-xl shadow-lg border border-purple-700/30 backdrop-blur-sm">
       <div className="relative group">
         <UserButton
           appearance={{
@@ -23,7 +23,7 @@ export function UserMenu() {
       {/* Sign out button */}
       <SignOutButton>
         <button
-          className="flex items-center justify-items-stretch gap-1.5 px-6 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-purple-900/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 focus:ring-offset-purple-900"
+          className="flex items-center justify-items-stretch gap-1.5 px-6 py-1.5 text-sm font-medium text-white bg-purple-800 hover:bg-purple-700 rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-purple-900/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 focus:ring-offset-purple-900"
           aria-label="Sign out"
         >
           <LogOut size={16} />
