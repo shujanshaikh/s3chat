@@ -10,6 +10,7 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import MemoizedMarkdown from "./MemorizedMarkdown";
 import MessageBox from "./Message-box";
+import Error from "./ui/error";
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
@@ -24,13 +25,16 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   });
   const createMessage = useMutation(api.messages.createMessage);
 
-  const { 
-    messages, 
-    input, 
-    handleInputChange, 
-    handleSubmit, 
-    isLoading, 
-    stop 
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    stop,
+    status,
+    error,
+    reload,
   } = useChat({
     initialMessages: initialMessages?.map((message) => ({
       id: message._id,
@@ -110,7 +114,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
         ref={scrollContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6 scroll-smooth no-scrollbar"
-        style={{ paddingBottom: '140px' }} // Reserve space for MessageBox
+        style={{ paddingBottom: "140px" }} // Reserve space for MessageBox
       >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-8">
           {messages.map((message, index) => (
@@ -122,7 +126,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               style={{ animationDelay: `${index * 50}ms` }}
             >
               {message.role === "user" ? (
-                // --- USER MESSAGE STYLING ---
+                // User message (unchanged)
                 <div className="max-w-[85%] sm:max-w-[80%] p-1 sm:p-2">
                   <div className="relative rounded-xl sm:rounded-2xl bg-[#51495f] px-3 sm:px-5 py-3 sm:py-4 text-white">
                     <div className="whitespace-pre-wrap break-words text-pretty text-gray-100 text-sm sm:text-base leading-relaxed">
@@ -131,17 +135,53 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                   </div>
                 </div>
               ) : (
-                // --- ASSISTANT MESSAGE STYLING ---
+                // Assistant message
                 <div className="flex w-full max-w-full items-start gap-2 sm:gap-4 pl-2 sm:pl-4">
                   <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none">
-                    <MemoizedMarkdown 
-                      content={message.content}
-                      id={message.id}
-                      size="default"
-                    />
+                    {/* Check if message has parts (reasoning) or just content */}
+                    {message.parts ? (
+                      // Handle structured message with reasoning
+                      message.parts.map((part, index) => (
+                        <div key={index}>
+                          {part.type === "text" && (
+                            <MemoizedMarkdown
+                              content={part.text}
+                              id={message.id}
+                              size="default"
+                            />
+                          )}
+                          {part.type === "reasoning" && (
+                            <details className="mb-4 rounded-lg bg-gray-800/50 p-3">
+                              <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
+                                View Reasoning
+                              </summary>
+                              <div className="mt-2 text-sm text-gray-400">
+                                <pre className="whitespace-pre-wrap">
+                                  {part.details?.map((detail, i) => (
+                                    <div key={i}>
+                                      {detail.type === "text"
+                                        ? detail.text
+                                        : "<redacted>"}
+                                    </div>
+                                  ))}
+                                </pre>
+                              </div>
+                            </details>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      // Handle simple string content
+                      <MemoizedMarkdown
+                        content={message.content}
+                        id={message.id}
+                        size="default"
+                      />
+                    )}
                   </div>
                 </div>
               )}
+             
             </div>
           ))}
 
@@ -156,6 +196,8 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
             </div>
           )}
         </div>
+        {/* Error Component */}
+        <Error error={error ? error.message : null} reload={reload} />
 
         {/* Scroll to Bottom Button */}
         {showScrollButton && (
@@ -188,21 +230,24 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       </div>
 
       {/* MessageBox Component - Positioned within the chat container */}
-       
-        <MessageBox 
-          input={input}
-          isLoading={isLoading}
-          currentModel={currentModel}
-          selectedModel={selectedModel}
-          groupedModels={groupedModels}
-          isDropdownOpen={isDropdownOpen}
-          onInputChange={handleInputChange}
-          onSubmit={handleFormSubmit}
-          onStop={handleStop}
-          onModelSelect={setSelectedModel}
-          onDropdownToggle={() => setIsDropdownOpen(!isDropdownOpen)}
-          onDropdownClose={() => setIsDropdownOpen(false)}
-        />
+
+      <MessageBox
+        input={input}
+        isLoading={isLoading}
+        currentModel={currentModel}
+        selectedModel={selectedModel}
+        groupedModels={groupedModels}
+        isDropdownOpen={isDropdownOpen}
+        onInputChange={handleInputChange}
+        onSubmit={handleFormSubmit}
+        onStop={handleStop}
+        status={status}
+        error={error ? error.message : null}
+        reload={reload}
+        onModelSelect={setSelectedModel}
+        onDropdownToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+        onDropdownClose={() => setIsDropdownOpen(false)}
+      />
     </div>
   );
 }
