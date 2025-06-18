@@ -21,9 +21,5 @@ export default function RedirectToThread() {
     go();
   }, [threads]);
 
-  return (
-    <div>
-      Loading your chat...
-    </div>
-  );
+  return null;
 }

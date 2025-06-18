@@ -58,7 +58,6 @@ export const updateThreads = mutation({
   },
 });
 
-
 export const createMessageSummary = mutation({
   args: {
     threadId: v.id("threads"),
@@ -79,3 +78,4 @@ export const createMessageSummary = mutation({
     return messageSummary;
   }
 })
+

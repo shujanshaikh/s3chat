@@ -4,7 +4,7 @@ import ChatLayout from "./components/ChatLayout";
 import ChatPage from "./routes/ChatPage";
 import RedirectToNewThread from "./components/RedirectToNewThread";
 import Home from "./routes/Home";
-import Setting from "./routes/Setting";
+import Setting  from "./routes/Setting";
 
 export default function App() {
   return (

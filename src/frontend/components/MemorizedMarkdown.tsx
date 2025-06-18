@@ -33,20 +33,21 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
   if (langMatch) {
     const lang = langMatch[1];
     return (
-      <div className="overflow-hidden rounded-md sm:rounded-lg my-2 sm:my-4 max-w-full" style={{ border: 'none', outline: 'none' }}>
+      <div className="overflow-hidden rounded-md sm:rounded-lg my-2 sm:my-4 max-w-full border-0 outline-0">
         <CopyClipBoard lang={lang} codeString={String(children)} />
-        <div className="overflow-x-auto" style={{ border: 'none', outline: 'none', borderRadius: '0', padding: '0', margin: '0' }}>
+        <div className="overflow-x-auto border-0 outline-0 scrollbar-thin scrollbar-thumb-pink-500/30 scrollbar-track-transparent">
           <ShikiHighlighter
             language={lang}
             theme={"plastic"}
-            className="text-xs sm:text-sm font-mono block !bg-transparent min-w-full"
+            className="text-xs sm:text-sm lg:text-base font-mono block !bg-transparent min-w-full"
             showLanguage={false}
             style={{ 
               border: 'none', 
               outline: 'none', 
               borderRadius: '0',
-              padding: '12px 16px',
-              margin: '0'
+              padding: '8px 12px sm:12px sm:16px lg:16px lg:20px',
+              margin: '0',
+              minWidth: 'fit-content'
             }}
           >
             {String(children)}
@@ -59,7 +60,7 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
   const inlineCodeClasses =
     size === "small"
       ? "mx-0.5 overflow-auto rounded px-1 py-0.5 bg-pink-900/15 font-mono text-xs break-all"
-      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-pink-900/10 font-mono text-xs sm:text-sm break-all";
+      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-pink-900/10 font-mono text-xs sm:text-sm lg:text-base break-all";
 
   return (
     <code className={inlineCodeClasses} {...props}>
@@ -91,14 +92,14 @@ function CopyClipBoard({
   };
 
   return (
-      <div className="flex justify-between items-center px-2 sm:px-3 xl:px-4 py-2 sm:py-2.5 xl:py-3 bg-pink-500/10 text-foreground rounded-t-md border-b border-pink-500/10">
-      <span className="text-xs sm:text-sm font-mono truncate flex-1 mr-2">{lang}</span>
+    <div className="flex justify-between items-center px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 bg-pink-500/10 text-foreground rounded-t-md border-b border-pink-500/10">
+      <span className="text-xs sm:text-sm lg:text-base font-mono truncate flex-1 mr-2 min-w-0">{lang}</span>
       <button 
         onClick={copyToClipBoard} 
-        className="text-xs sm:text-sm cursor-pointer p-1 sm:p-1.5 hover:bg-black/20 rounded transition-colors flex-shrink-0 touch-manipulation"
+        className="text-xs sm:text-sm lg:text-base cursor-pointer p-2 sm:p-2.5 lg:p-3 hover:bg-black/20 active:bg-black/30 rounded transition-colors flex-shrink-0 touch-manipulation min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] lg:min-w-[40px] lg:min-h-[40px] flex items-center justify-center"
         aria-label={copy ? "Copied!" : "Copy code"}
       >
-        {copy ? <Check className="w-3 h-3 sm:w-4 sm:h-4" /> : <Copy className="w-3 h-3 sm:w-4 sm:h-4" />}
+        {copy ? <Check className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" /> : <Copy className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
         <Toaster position="bottom-center" richColors={false} duration={2000} />
       </button>
     </div>
@@ -146,12 +147,12 @@ const MemoizedMarkdown = memo(
 
     const proseClasses =
       size === 'small'
-        ? 'prose prose-sm dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:m-0 prose-pre:bg-transparent prose-headings:break-words prose-p:break-words prose-headings:text-sm prose-p:text-sm prose-headings:leading-tight prose-p:leading-relaxed'
-        : 'prose prose-sm sm:prose-base dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:m-0 prose-pre:bg-transparent prose-headings:break-words prose-p:break-words prose-headings:leading-tight prose-p:leading-relaxed prose-headings:text-sm prose-p:text-sm sm:prose-headings:text-base sm:prose-p:text-base prose-ul:text-sm sm:prose-ul:text-base prose-ol:text-sm sm:prose-ol:text-base prose-li:text-sm sm:prose-li:text-base';
+        ? 'prose prose-sm dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:m-0 prose-pre:bg-transparent prose-headings:break-words prose-p:break-words prose-headings:text-xs prose-p:text-xs prose-headings:leading-tight prose-p:leading-relaxed prose-ul:text-xs prose-ol:text-xs prose-li:text-xs'
+        : 'prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert break-words max-w-none w-full prose-code:before:content-none prose-code:after:content-none prose-pre:p-0 prose-pre:m-0 prose-pre:bg-transparent prose-headings:break-words prose-p:break-words prose-headings:leading-tight prose-p:leading-relaxed prose-headings:text-sm prose-p:text-sm sm:prose-headings:text-base sm:prose-p:text-base lg:prose-headings:text-lg lg:prose-p:text-lg prose-ul:text-sm sm:prose-ul:text-base lg:prose-ul:text-lg prose-ol:text-sm sm:prose-ol:text-base lg:prose-ol:text-lg prose-li:text-sm sm:prose-li:text-base lg:prose-li:text-lg prose-table:text-xs sm:prose-table:text-sm lg:prose-table:text-base prose-th:text-xs sm:prose-th:text-sm lg:prose-th:text-base prose-td:text-xs sm:prose-td:text-sm lg:prose-td:text-base';
 
     return (
       <MarkDownComponent.Provider value={size}>
-        <div className={proseClasses}>
+        <div className={`${proseClasses} px-1 sm:px-2 lg:px-4`}>
           {blocks.map((block, index) => (
             <MarkDownBlock
               content={block}
