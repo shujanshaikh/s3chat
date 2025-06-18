@@ -37,7 +37,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   if (getKey("anthropic"))
     apiHeaders["x-anthropic-api-key"] = getKey("anthropic")!;
   if (getKey("groq")) apiHeaders["x-groq-api-key"] = getKey("groq")!;
-  
+
   const {
     messages,
     input,
@@ -99,16 +99,10 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     }
   };
 
-  // Auto-scroll to bottom when new messages arrive or when streaming
-  useEffect(() => {
-    if (isLoading || messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, isLoading]);
-
+  // Only check scroll position on mount and when messages change (not for auto-scroll)
   useEffect(() => {
     handleScroll();
-  }, []);
+  }, [messages.length]);
 
   const LoadingDots = () => (
     <div className="flex items-center gap-1 px-2 py-1">
@@ -171,7 +165,9 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                       aria-label="Copy response"
                     >
                       <Copy
-                        className={`text-white ${copied === message.id ? "text-green-400" : ""}`}
+                        className={`text-white ${
+                          copied === message.id ? "text-green-400" : ""
+                        }`}
                         size={16}
                       />
                     </button>
