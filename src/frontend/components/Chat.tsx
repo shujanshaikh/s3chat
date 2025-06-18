@@ -116,7 +116,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   const currentModel = getModelInfo(selectedModel);
 
   return (
-    <div className="flex h-dvh flex-col bg-[#262132] relative min-h-screen">
+    <div className="flex h-dvh flex-col bg-pink-200/15 relative min-h-screen">
       {/* Messages */}
       <div
         ref={scrollContainerRef}
@@ -136,7 +136,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               {message.role === "user" ? (
                 // User message (unchanged)
                 <div className="max-w-[85%] sm:max-w-[80%] p-1 sm:p-2">
-                  <div className="relative rounded-xl sm:rounded-2xl bg-[#51495f] px-3 sm:px-5 py-3 sm:py-4 text-white">
+                  <div className="relative rounded-xl sm:rounded-2xl bg-pink-700/10 px-3 sm:px-5 py-3 sm:py-4 text-white">
                     <div className="whitespace-pre-wrap break-words text-pretty text-gray-100 text-sm sm:text-base leading-relaxed">
                       {message.content}
                     </div>

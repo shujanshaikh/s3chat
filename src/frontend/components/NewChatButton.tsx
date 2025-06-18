@@ -21,7 +21,7 @@ export function NewChatButton() {
   return (
     <button
       onClick={handleNewChat}
-      className="w-full rounded-lg bg-gradient-to-br bg-[#392760] px-4 py-2 text-sm font-extrabold text-white shadow-lg transition-all duration-200 hover:bg-[#856ebb]"
+      className="w-full rounded-lg bg-gradient-to-br from-pink-800/15 to-pink-600/30 px-4 py-2 text-sm font-extrabold text-white shadow-lg transition-all duration-200 hover:bg-pink-700"
     >
       New Chat
     </button>

@@ -82,7 +82,7 @@ export function StoreApiKeyForm() {
               <div key={provider.id} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor={provider.id} className="text-white font-medium flex items-center gap-2">
-                    <Key className="w-4 h-4 text-purple-400" />
+                    <Key className="w-4 h-4 text-pink-400" />
                     {provider.name}
                   </Label>
                   {provider.value && (
@@ -100,7 +100,7 @@ export function StoreApiKeyForm() {
                     onChange={(e) => provider.setValue(e.target.value)}
                     onBlur={() => setKeys({ [provider.id]: provider.value })}
                     placeholder={provider.placeholder}
-                    className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-500 pr-10 focus:border-purple-500 focus:ring-purple-500/20"
+                    className="bg-gray-800/50 border-gray-600 text-white placeholder:text-gray-500 pr-10 focus:border-orange-500 focus:ring-orange-500/20"
                   />
                   <Button
                     type="button"
@@ -122,7 +122,7 @@ export function StoreApiKeyForm() {
             <Button
               onClick={handleClearAll}
               variant="outline"
-              className="flex-1 bg-transparent border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50"
+              className="flex-1 bg-transparent border-pink-500/30 text-pink-400 hover:bg-pink-500/10 hover:border-pink-500/50"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Clear All Keys

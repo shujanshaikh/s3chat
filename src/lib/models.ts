@@ -51,16 +51,15 @@ export const models: ModelInfo[] = [
     description: "Latest Claude with excellent reasoning and coding",
   },
   {
-    id: "gpt-3.5-turbo",
-    name: "GPT-3.5 Turbo",
-    provider: "OpenAI",
-    category: "Standard",
-    description: "Popular, cost-effective model for general use",
-  },
-
-  {
     id: "claude-3.7-sonnet",
     name: "Claude 3.7 Sonnet",
+    provider: "Anthropic",
+    category: "Premium",
+    description: "Latest Claude with excellent reasoning and coding",
+  },
+  {
+    id: "claude-4-sonnet",
+    name: "Claude 4 Sonnet",
     provider: "Anthropic",
     category: "Premium",
     description: "Latest Claude with excellent reasoning and coding",

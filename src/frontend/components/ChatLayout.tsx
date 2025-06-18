@@ -200,9 +200,9 @@ export default function ChatLayout() {
               to={`/chat/${thread._id}`}
               onClick={() => isMobile && setSidebarOpen(false)}
               className={({ isActive }) =>
-                `block rounded-md px-3 py-2 text-sm transition-colors hover:bg-gray-700/50 touch-manipulation ${
+                `block rounded-md px-3 py-2 text-sm transition-colors hover:bg-pink-700/50 touch-manipulation ${
                   isActive
-                    ? "bg-purple-500/20 text-white"
+                    ? "bg-pink-500/20 text-white"
                     : "text-gray-300 hover:text-white"
                 }`
               }
@@ -219,7 +219,7 @@ export default function ChatLayout() {
     <div className="flex h-dvh flex-row-reverse relative">
       {/* Mobile Top Bar */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-purple-900/10 to-purple-900/20 border-b border-purple-900/30 px-4 py-3">
+        <div className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-pink-900/10 to-pink-900/20 border-b border-pink-900/30 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 ">
               <h1
@@ -235,11 +235,11 @@ export default function ChatLayout() {
             </div>
             <button
               id="mobile-menu-button"
-              className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-2.5 shadow-lg hover:bg-purple-700/80 transition-colors touch-manipulation"
+              className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-2.5 shadow-lg hover:bg-pink-700/80 transition-colors touch-manipulation"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               title="Open menu"
             >
-              <Menu size={20} className="text-purple-300" />
+              <Menu size={20} className="text-pink-300" />
             </button>
           </div>
         </div>
@@ -259,7 +259,7 @@ export default function ChatLayout() {
           id="mobile-sidebar"
           className={`
   ${isMobile ? "fixed" : "relative"} 
-  flex flex-col bg-gradient-to-b from-purple-600/10 to-purple-300/20 backdrop-blur-md border-l border-purple-900/30 shadow-2xl w-75 min-w-[18rem] transition-all duration-300
+  flex flex-col bg-gradient-to-b bg-pink-800/15 backdrop-blur-md border-l border-pink-900/30 shadow-2xl w-75 min-w-[18rem] transition-all duration-300 no-scrollbar
   ${isMobile ? "inset-y-0 right-0 z-50 pt-16" : ""}
   ${isMobile ? (sidebarOpen ? "translate-x-0" : "translate-x-full") : ""}
   ${isMobile ? "max-w-[80vw]" : ""}
@@ -268,7 +268,7 @@ export default function ChatLayout() {
           {/* Desktop Close Button */}
           {!isMobile && (
             <button
-              className="absolute top-4 left-4 z-10 bg-gray-900 rounded-full p-1.5 hover:bg-purple-700 transition-colors touch-manipulation"
+              className="absolute top-4 left-4 z-10 bg-pink-900/10 rounded-full p-1.5 hover:bg-pink-700 transition-colors touch-manipulation"
               onClick={handleSidebarToggle}
               title="Collapse sidebar (Ctrl+B)"
             >
@@ -279,7 +279,7 @@ export default function ChatLayout() {
           {/* Mobile Close Button */}
           {isMobile && (
             <button
-              className="absolute top-2 left-3 z-10 bg-gray-900 rounded-full p-1.5 hover:bg-purple-700 transition-colors touch-manipulation"
+              className="absolute top-2 left-3 z-10 bg-pink-900 rounded-full p-1.5 hover:bg-pink-700 transition-colors touch-manipulation"
               onClick={handleSidebarToggle}
               title="Close sidebar"
             >
@@ -294,7 +294,7 @@ export default function ChatLayout() {
                 style={{
                   fontFamily: "'Montserrat', sans-serif",
                   fontWeight: 700,
-                  color: "#d6b4d8",
+                  color: "#fff",
                 }}
                 className="mb-4 text-xl tracking-tight text-center"
               >
@@ -318,19 +318,19 @@ export default function ChatLayout() {
                 placeholder="Search your threads..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-800/30 backdrop-blur-sm border border-gray-700/40 rounded-md pl-10 pr-4 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 transition-colors"
+                className="w-full bg-gray-800/30 backdrop-blur-sm border border-gray-700/40 rounded-md pl-10 pr-4 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-pink-500/50 focus:border-pink-500/50 transition-colors"
               />
             </div>
 
             {/* Threads List */}
-            <nav className="flex-1 overflow-y-auto">
+            <nav className="flex-1 overflow-y-auto no-scrollbar">
               {renderThreadGroup("Today", threadGroups.today)}
               {renderThreadGroup("Yesterday", threadGroups.yesterday)}
               {renderThreadGroup("Last 7 Days", threadGroups.lastWeek)}
               {renderThreadGroup("Older", threadGroups.older)}
 
               {threads?.length === 0 && (
-                <div className="text-sm text-gray-500 text-center py-8">
+                <div className="text-sm text-pink-300 text-center py-8">
                   No chats yet
                 </div>
               )}
@@ -347,11 +347,11 @@ export default function ChatLayout() {
       {/* Desktop Floating Expand Button */}
       {!isMobile && collapsed && (
         <button
-          className="fixed top-6 right-6 z-30 bg-gradient-to-b from-purple-900/10 to-purple-900/20 backdrop-blur-sm rounded-full p-2.5 shadow-lg hover:bg-purple-700/80 transition-colors touch-manipulation"
+          className="fixed top-6 right-6 z-30 bg-gradient-to-b from-pink-500/10 to-pink-500/30 backdrop-blur-sm rounded-full p-2.5 shadow-lg hover:bg-pink-700/80 transition-colors touch-manipulation"
           onClick={() => setCollapsed(false)}
           title="Expand sidebar (Ctrl+B)"
         >
-          <ChevronLeft size={20} className="text-purple-300" />
+          <ChevronLeft size={20} className="text-pink-300" />
         </button>
       )}
 

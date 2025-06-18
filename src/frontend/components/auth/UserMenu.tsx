@@ -6,7 +6,7 @@ export function UserMenu() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center gap-3 p-2.5 bg-gradient-to-r bg-[#392760] rounded-xl shadow-lg border border-purple-700/30 backdrop-blur-sm">
+    <div className="flex items-center gap-3 p-2.5  bg-none rounded-xl shadow-lg border-none backdrop-blur-sm">
       <div className="relative group">
         <UserButton
           appearance={{
@@ -21,12 +21,12 @@ export function UserMenu() {
       </div>
 
       {/* Divider */}
-      <div className="h-6 w-px bg-purple-700/50"></div>
+      <div className="h-6 w-px bg-none"></div>
 
       {/* Sign out button */}
       <SignOutButton>
         <button
-          className="flex items-center justify-items-stretch gap-1.5 px-6 py-1.5 text-sm font-medium text-white bg-purple-800 hover:bg-purple-700 rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-purple-900/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 focus:ring-offset-purple-900"
+          className="flex items-center justify-items-stretch gap-1.5 px-6 py-1.5 text-sm font-medium text-white bg-none rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 focus:ring-offset-orange-900"
           aria-label="Sign out"
         >
           <LogOut size={16} />
@@ -35,7 +35,7 @@ export function UserMenu() {
       </SignOutButton>
 
       <button
-        className="flex items-center justify-items-stretch gap-1.5 px-2 py-1.5 text-sm font-medium text-white bg-purple-800 hover:bg-purple-700 rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-purple-900/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 focus:ring-offset-purple-900"
+        className="flex items-center justify-items-stretch gap-1.5 px-2 py-1.5 text-sm font-medium text-white bg-none rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 focus:ring-offset-orange-900"
         onClick={() => navigate("/setting")}
       >
         <Settings className="text-white" size={16} />

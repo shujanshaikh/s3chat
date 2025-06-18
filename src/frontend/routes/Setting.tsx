@@ -8,7 +8,7 @@ export default function Setting() {
   const { user } = useUser();
 
   return (
-    <div className=" bg-gradient-to-b from-purple-900/10 to-purple-900/20 h-full min-h-screen text-white w-full  no-scrollbar">
+    <div className=" bg-gradient-to-b from-pink-900/10 to-pink-900/20 h-full min-h-screen text-white w-full  no-scrollbar">
       <div className="flex h-full w-full p-10 gap-10">
         {/* Left Sidebar */}
         <div className="w-80 h-full p-6 flex-shrink-0 overflow-y-auto ">
@@ -17,7 +17,7 @@ export default function Setting() {
           <div className="flex flex-col items-center mb-8">
             <Avatar className="w-24 h-24 mb-4">
               <AvatarImage src={user?.imageUrl} />
-              <AvatarFallback className="bg-gray-600 text-white text-xl">
+              <AvatarFallback className="bg-pink-600 text-white text-xl">
                 {user?.fullName?.charAt(0)}
               </AvatarFallback>
             </Avatar>

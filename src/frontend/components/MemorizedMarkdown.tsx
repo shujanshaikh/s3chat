@@ -38,7 +38,7 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
         <div className="overflow-x-auto" style={{ border: 'none', outline: 'none', borderRadius: '0', padding: '0', margin: '0' }}>
           <ShikiHighlighter
             language={lang}
-            theme={"rose-pine"}
+            theme={"plastic"}
             className="text-xs sm:text-sm font-mono block !bg-transparent min-w-full"
             showLanguage={false}
             style={{ 
@@ -58,8 +58,8 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
 
   const inlineCodeClasses =
     size === "small"
-      ? "mx-0.5 overflow-auto rounded px-1 py-0.5 bg-[#51495f] font-mono text-xs break-all"
-      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-[#51495f] font-mono text-xs sm:text-sm break-all";
+      ? "mx-0.5 overflow-auto rounded px-1 py-0.5 bg-pink-900/15 font-mono text-xs break-all"
+      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-pink-900/10 font-mono text-xs sm:text-sm break-all";
 
   return (
     <code className={inlineCodeClasses} {...props}>
@@ -91,7 +91,7 @@ function CopyClipBoard({
   };
 
   return (
-    <div className="flex justify-between items-center px-2 sm:px-3 xl:px-4 py-2 sm:py-2.5 xl:py-3 bg-[#51495f] text-foreground rounded-t-md border-b border-[#3a3340]">
+      <div className="flex justify-between items-center px-2 sm:px-3 xl:px-4 py-2 sm:py-2.5 xl:py-3 bg-pink-500/10 text-foreground rounded-t-md border-b border-pink-500/10">
       <span className="text-xs sm:text-sm font-mono truncate flex-1 mr-2">{lang}</span>
       <button 
         onClick={copyToClipBoard} 

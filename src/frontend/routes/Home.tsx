@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Authenticated>
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-orange-900 to-orange-900 flex flex-col">
           <header className="flex justify-end p-6">
             <UserMenu />
           </header>
