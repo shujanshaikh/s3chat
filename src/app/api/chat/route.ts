@@ -1,10 +1,12 @@
 import { NextRequest } from "next/server";
-import { smoothStream, streamText } from "ai";
+import { LanguageModelV1, smoothStream, streamText } from "ai";
 import { systemprompt } from "@/lib/systemprompt";
 import { DEFAULT_MODEL, getModel } from "@/lib/models";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
+import { AIModel, getModelConfig } from "@/lib/modelConfig";
+import { headers } from "next/headers";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -36,7 +38,24 @@ export async function POST(req: NextRequest) {
       userId: convexUserId,
     });
 
+    const { messages, model } = await req.json();
+
+    const headersList = await headers();
+
+    const modelConfig = getModelConfig(model || (DEFAULT_MODEL as AIModel));
+
+    if (!modelConfig) {
+      console.log("Invalid model", model);
+      return new Response("Invalid model", { status: 400 });
+    }
+
+    const apiKeyfromHeaders =
+      headersList.get(modelConfig.headerKey) || undefined;
+
+    const skipUsageTracking = !!apiKeyfromHeaders;
+
     if (
+      !skipUsageTracking &&
       converUser?.plan === "free" &&
       userUsage &&
       userUsage.totalTokens >= FREE_LIMIT
@@ -44,20 +63,24 @@ export async function POST(req: NextRequest) {
       return new Response("Free limit reached", { status: 403 });
     }
 
-    const { messages, model } = await req.json();
-
     const result = streamText({
-      model: getModel(model || DEFAULT_MODEL),
+      model: getModel(
+        model || DEFAULT_MODEL,
+        apiKeyfromHeaders
+      ) as LanguageModelV1,
       messages,
       system: systemprompt,
       experimental_transform: [smoothStream({ chunking: "word" })],
       abortSignal: req.signal,
       onFinish: async (result) => {
-        await convex.mutation(api.usage.createUsage, {
-          userId: convexUserId,
-          model: model || DEFAULT_MODEL,
-          totalTokens: result.steps[result.steps.length - 1].usage.completionTokens,
-        });
+        if (!skipUsageTracking) {
+          await convex.mutation(api.usage.createUsage, {
+            userId: convexUserId,
+            model: model,
+            totalTokens:
+              result.steps[result.steps.length - 1].usage.completionTokens,
+          });
+        }
       },
     });
 

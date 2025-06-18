@@ -1,121 +1,131 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { useQuery } from "convex/react"
-import { NavLink, Outlet, useParams } from "react-router-dom"
-import { api } from "../../../convex/_generated/api"
-import { UserMenu } from "./auth/UserMenu"
-import { ChevronLeft, ChevronRight, Menu, X, Search } from "lucide-react"
-import { useMessageSummary } from "../hooks/useMessageSummary"
-import type { Id } from "../../../convex/_generated/dataModel"
-import { NewChatButton } from "./NewChatButton"
+import { useState, useEffect, useRef } from "react";
+import { useQuery } from "convex/react";
+import { NavLink, Outlet, useParams } from "react-router-dom";
+import { api } from "../../../convex/_generated/api";
+import { UserMenu } from "./auth/UserMenu";
+import { ChevronLeft, ChevronRight, Menu, X, Search } from "lucide-react";
+import { useMessageSummary } from "../hooks/useMessageSummary";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { NewChatButton } from "./NewChatButton";
 
 export default function ChatLayout() {
-  const threads = useQuery(api.threads.getThreads)
-  const [collapsed, setCollapsed] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const processedThreadsRef = useRef(new Set<string>())
+  const threads = useQuery(api.threads.getThreads);
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const processedThreadsRef = useRef(new Set<string>());
   const { threadId: currentThreadId } = useParams<{
-    threadId: Id<"threads">
-  }>()
+    threadId: Id<"threads">;
+  }>();
 
   const messageSummary = useQuery(api.messages.getMessages, {
     threadId: currentThreadId!,
-  })
+  });
 
-  const { complete, isLoading } = useMessageSummary()
+  const { complete, isLoading } = useMessageSummary();
 
   // Check if mobile and handle resize
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = window.innerWidth < 768 // md breakpoint
-      setIsMobile(mobile)
+      const mobile = window.innerWidth < 768; // md breakpoint
+      setIsMobile(mobile);
       if (mobile) {
-        setCollapsed(true)
-        setSidebarOpen(false)
+        setCollapsed(true);
+        setSidebarOpen(false);
       } else {
-        setCollapsed(false)
+        setCollapsed(false);
       }
-    }
+    };
 
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyboard = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
-        e.preventDefault()
+        e.preventDefault();
         if (isMobile) {
-          setSidebarOpen(!sidebarOpen)
+          setSidebarOpen(!sidebarOpen);
         } else {
-          setCollapsed(!collapsed)
+          setCollapsed(!collapsed);
         }
       }
-    }
+    };
 
-    document.addEventListener("keydown", handleKeyboard)
-    return () => document.removeEventListener("keydown", handleKeyboard)
-  }, [collapsed, sidebarOpen, isMobile])
+    document.addEventListener("keydown", handleKeyboard);
+    return () => document.removeEventListener("keydown", handleKeyboard);
+  }, [collapsed, sidebarOpen, isMobile]);
 
   // Close mobile sidebar when clicking outside
   useEffect(() => {
-    if (!isMobile || !sidebarOpen) return
+    if (!isMobile || !sidebarOpen) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      const sidebar = document.getElementById("mobile-sidebar")
-      const menuButton = document.getElementById("mobile-menu-button")
+      const sidebar = document.getElementById("mobile-sidebar");
+      const menuButton = document.getElementById("mobile-menu-button");
 
-      if (sidebar && menuButton && !sidebar.contains(e.target as Node) && !menuButton.contains(e.target as Node)) {
-        setSidebarOpen(false)
+      if (
+        sidebar &&
+        menuButton &&
+        !sidebar.contains(e.target as Node) &&
+        !menuButton.contains(e.target as Node)
+      ) {
+        setSidebarOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isMobile, sidebarOpen])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMobile, sidebarOpen]);
 
   const handleSidebarToggle = () => {
     if (isMobile) {
-      setSidebarOpen(!sidebarOpen)
+      setSidebarOpen(!sidebarOpen);
     } else {
-      setCollapsed(!collapsed)
+      setCollapsed(!collapsed);
     }
-  }
+  };
 
   useEffect(() => {
-    if (!currentThreadId || !messageSummary || !messageSummary.length || isLoading) {
-      return
+    if (
+      !currentThreadId ||
+      !messageSummary ||
+      !messageSummary.length ||
+      isLoading
+    ) {
+      return;
     }
 
-    const currentThread = threads?.find((t) => t._id === currentThreadId)
+    const currentThread = threads?.find((t) => t._id === currentThreadId);
     if (
       currentThread &&
       (!currentThread.title || currentThread.title === "New Chat") &&
       !processedThreadsRef.current.has(currentThreadId) &&
       messageSummary.length > 0
     ) {
-      const firstUserMessage = messageSummary.find((m) => m.role === "user")
+      const firstUserMessage = messageSummary.find((m) => m.role === "user");
 
       if (firstUserMessage) {
-        processedThreadsRef.current.add(currentThreadId)
+        processedThreadsRef.current.add(currentThreadId);
 
         const formatMessage = messageSummary.map((m) => ({
           role: m.role,
           content: m.content,
-        }))
+        }));
 
-        const lastMessage = messageSummary[messageSummary.length - 1]
-        const lastMessageId = lastMessage._id
+        const lastMessage = messageSummary[messageSummary.length - 1];
+        const lastMessageId = lastMessage._id;
 
         const conversationSummary = formatMessage
           .slice(0, 5)
           .map((msg) => `${msg.role}: ${msg.content}`)
-          .join("\n")
+          .join("\n");
 
         complete(conversationSummary, {
           body: {
@@ -123,55 +133,62 @@ export default function ChatLayout() {
             messageId: lastMessageId,
             isTitle: true,
           },
-        })
+        });
       }
     }
-  }, [currentThreadId, messageSummary?.length, threads?.length])
+  }, [currentThreadId, messageSummary?.length, threads?.length]);
 
   // Clean up processed threads when component unmounts or thread changes
   useEffect(() => {
     return () => {
-      processedThreadsRef.current.clear()
-    }
-  }, [])
+      processedThreadsRef.current.clear();
+    };
+  }, []);
 
   // Group threads by time
   const groupThreadsByTime = () => {
-    if (!threads) return { today: [], yesterday: [], lastWeek: [], older: [] }
+    if (!threads) return { today: [], yesterday: [], lastWeek: [], older: [] };
 
-    const now = new Date()
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const filtered = threads.filter(
-      (thread) => thread.title?.toLowerCase().includes(searchQuery.toLowerCase()) || searchQuery === "",
-    )
+      (thread) =>
+        thread.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        searchQuery === ""
+    );
 
     return filtered.reduce(
       (groups, thread) => {
-        const threadDate = new Date(thread._creationTime)
+        const threadDate = new Date(thread._creationTime);
 
         if (threadDate >= today) {
-          groups.today.push(thread)
+          groups.today.push(thread);
         } else if (threadDate >= yesterday) {
-          groups.yesterday.push(thread)
+          groups.yesterday.push(thread);
         } else if (threadDate >= lastWeek) {
-          groups.lastWeek.push(thread)
+          groups.lastWeek.push(thread);
         } else {
-          groups.older.push(thread)
+          groups.older.push(thread);
         }
 
-        return groups
+        return groups;
       },
-      { today: [] as any[], yesterday: [] as any[], lastWeek: [] as any[], older: [] as any[] },
-    )
-  }
+      {
+        today: [] as any[],
+        yesterday: [] as any[],
+        lastWeek: [] as any[],
+        older: [] as any[],
+      }
+    );
+  };
 
-  const threadGroups = groupThreadsByTime()
+  const threadGroups = groupThreadsByTime();
 
   const renderThreadGroup = (title: string, threads: any[]) => {
-    if (threads.length === 0) return null
+    if (threads.length === 0) return null;
 
     return (
       <div className="mb-4">
@@ -184,7 +201,9 @@ export default function ChatLayout() {
               onClick={() => isMobile && setSidebarOpen(false)}
               className={({ isActive }) =>
                 `block rounded-md px-3 py-2 text-sm transition-colors hover:bg-gray-700/50 touch-manipulation ${
-                  isActive ? "bg-purple-500/20 text-white" : "text-gray-300 hover:text-white"
+                  isActive
+                    ? "bg-purple-500/20 text-white"
+                    : "text-gray-300 hover:text-white"
                 }`
               }
             >
@@ -193,14 +212,14 @@ export default function ChatLayout() {
           ))}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex h-dvh flex-row-reverse relative">
       {/* Mobile Top Bar */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-40 bg-[#2b2832]/80 backdrop-blur-md border-b border-purple-900/30 px-4 py-3">
+        <div className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-purple-900/10 to-purple-900/20 border-b border-purple-900/30 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 ">
               <h1
@@ -240,7 +259,7 @@ export default function ChatLayout() {
           id="mobile-sidebar"
           className={`
   ${isMobile ? "fixed" : "relative"} 
-  flex flex-col bg-[#25212e]/90 backdrop-blur-md border-l border-purple-600/30 shadow-2xl w-72 min-w-[18rem] transition-all duration-300
+  flex flex-col bg-gradient-to-b from-purple-600/10 to-purple-300/20 backdrop-blur-md border-l border-purple-900/30 shadow-2xl w-75 min-w-[18rem] transition-all duration-300
   ${isMobile ? "inset-y-0 right-0 z-50 pt-16" : ""}
   ${isMobile ? (sidebarOpen ? "translate-x-0" : "translate-x-full") : ""}
   ${isMobile ? "max-w-[80vw]" : ""}
@@ -290,7 +309,10 @@ export default function ChatLayout() {
 
             {/* Search */}
             <div className="relative mb-4">
-              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
               <input
                 type="text"
                 placeholder="Search your threads..."
@@ -307,7 +329,11 @@ export default function ChatLayout() {
               {renderThreadGroup("Last 7 Days", threadGroups.lastWeek)}
               {renderThreadGroup("Older", threadGroups.older)}
 
-              {threads?.length === 0 && <div className="text-sm text-gray-500 text-center py-8">No chats yet</div>}
+              {threads?.length === 0 && (
+                <div className="text-sm text-gray-500 text-center py-8">
+                  No chats yet
+                </div>
+              )}
             </nav>
 
             {/* User Menu */}
@@ -321,7 +347,7 @@ export default function ChatLayout() {
       {/* Desktop Floating Expand Button */}
       {!isMobile && collapsed && (
         <button
-          className="fixed top-6 right-6 z-30 bg-gray-900/80 backdrop-blur-sm rounded-full p-2.5 shadow-lg hover:bg-purple-700/80 transition-colors touch-manipulation"
+          className="fixed top-6 right-6 z-30 bg-gradient-to-b from-purple-900/10 to-purple-900/20 backdrop-blur-sm rounded-full p-2.5 shadow-lg hover:bg-purple-700/80 transition-colors touch-manipulation"
           onClick={() => setCollapsed(false)}
           title="Expand sidebar (Ctrl+B)"
         >
@@ -334,5 +360,5 @@ export default function ChatLayout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

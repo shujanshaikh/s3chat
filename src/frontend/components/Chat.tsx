@@ -14,7 +14,7 @@ import Error from "./ui/error";
 import Image from "next/image";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import { Toaster } from "./ui/sonner";
+import { useAPIKeyStore } from "../store/apiKey";
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
@@ -29,7 +29,15 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     threadId: threadId!,
   });
   const createMessage = useMutation(api.messages.createMessage);
+  const { getKey } = useAPIKeyStore();
 
+  const apiHeaders: Record<string, string> = {};
+  if (getKey("google")) apiHeaders["x-google-api-key"] = getKey("google")!;
+  if (getKey("openai")) apiHeaders["x-openai-api-key"] = getKey("openai")!;
+  if (getKey("anthropic"))
+    apiHeaders["x-anthropic-api-key"] = getKey("anthropic")!;
+  if (getKey("groq")) apiHeaders["x-groq-api-key"] = getKey("groq")!;
+  
   const {
     messages,
     input,
@@ -55,6 +63,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
         model: selectedModel,
       });
     },
+    headers: apiHeaders,
   });
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -113,7 +122,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
   const currentModel = getModelInfo(selectedModel);
 
   return (
-    <div className="flex h-dvh flex-col bg-[#2b2832] relative min-h-screen">
+    <div className="flex h-dvh flex-col bg-[#262132] relative min-h-screen">
       {/* Messages */}
       <div
         ref={scrollContainerRef}
