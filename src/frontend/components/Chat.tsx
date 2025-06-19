@@ -170,82 +170,90 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
               ) : (
                 // Assistant message
                 <div className="flex w-full max-w-full items-start gap-2 sm:gap-4 pl-2 sm:pl-4">
-                  <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative">
+                  <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative group">
                     {/* Copy Button for this assistant message */}
-                    <button
-                      className="rounded transition justify-start p-2 absolute bottom-0 right-0 cursor-pointer"
-                      onClick={async () => {
-                        try {
-                          const textToCopy = message.parts
-                            ? message.parts
-                                .filter((part) => part.type === "text")
-                                .map((part) => part.text)
-                                .join("\n")
-                            : message.content;
-                          
-                          await navigator.clipboard.writeText(textToCopy);
-                          setCopied(message.id);
-                          toast.success("Copied to clipboard");
-                          setTimeout(() => setCopied(null), 1500);
-                        } catch (error) {
-                          console.error("Failed to copy text:", error);
-                          toast.error("Failed to copy to clipboard");
-                        }
-                      }}
-                      aria-label="Copy response"
-                    >
-                      <Copy
-                        className={`text-white ${
-                          copied === message.id ? "text-green-400" : ""
-                        }`}
-                        size={16}
-                      />
-                    </button>
+                    {!isLoading && (
+                      <button
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+                                   absolute bottom-2 left-2 z-10 
+                                   text-gray-400 hover:text-gray-200 
+                                   p-1 rounded"
+                        onClick={async () => {
+                          try {
+                            const textToCopy = message.parts
+                              ? message.parts
+                                  .filter((part) => part.type === "text")
+                                  .map((part) => part.text)
+                                  .join("\n")
+                              : message.content;
+                            
+                            await navigator.clipboard.writeText(textToCopy);
+                            setCopied(message.id);
+                            toast.success("Copied to clipboard");
+                            setTimeout(() => setCopied(null), 1500);
+                          } catch (error) {
+                            console.error("Failed to copy text:", error);
+                            toast.error("Failed to copy to clipboard");
+                          }
+                        }}
+                        aria-label="Copy response"
+                        title="Copy to clipboard"
+                      >
+                        <Copy
+                          className={`transition-colors duration-200 ${
+                            copied === message.id ? "text-green-400" : "text-gray-400 hover:text-gray-200"
+                          }`}
+                          size={14}
+                        />
+                      </button>
+                    )}
                     {/* Check if message has parts (reasoning) or just content */}
        {message.parts ? (
-  message.parts.map((part, partIndex) => (
-    <div key={partIndex} className="w-full max-w-full overflow-x-auto break-words">
-      {part.type === "text" && (
-        <MemoizedMarkdown
-          content={part.text}
-          id={`${message.id}-text-${partIndex}`}
-          size="default"
-        />
-      )}
-
-      {part.type === "file" && part.mimeType?.startsWith("image/") && (
-        <div className="my-4 w-full max-w-full flex justify-center">
-          <Image
-            src={`data:${part.mimeType};base64,${part.data}`}
-            alt="Generated image"
-            className="w-full max-w-[100%] h-auto rounded-lg shadow-lg"
-            loading="lazy"
-            width={100}
-            height={100}
+  <div className="pb-8">
+    {message.parts.map((part, partIndex) => (
+      <div key={partIndex} className="w-full max-w-full overflow-x-auto break-words">
+        {part.type === "text" && (
+          <MemoizedMarkdown
+            content={part.text}
+            id={`${message.id}-text-${partIndex}`}
+            size="default"
           />
-        </div>
-      )}
+        )}
 
-      {part.type === "reasoning" && (
-        <details className="mb-4 rounded-lg bg-gray-800/50 p-3 w-full max-w-full">
-          <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
-            View Reasoning
-          </summary>
-          <div className="mt-2 text-sm text-gray-400 overflow-x-auto">
-            <pre className="whitespace-pre-wrap break-words">
-              {part.details?.map((detail, i) => (
-                <div key={i}>
-                  {detail.type === "text" ? detail.text : "<redacted>"}
-                </div>
-              ))}
-            </pre>
+        {part.type === "file" && part.mimeType?.startsWith("image/") && (
+          <div className="my-4 w-full max-w-full flex justify-center">
+            <Image
+              src={`data:${part.mimeType};base64,${part.data}`}
+              alt="Generated image"
+              className="w-full max-w-[100%] h-auto rounded-lg shadow-lg"
+              loading="lazy"
+              width={100}
+              height={100}
+            />
           </div>
-        </details>
-      )}
-    </div>
-  ))
+        )}
+
+        {part.type === "reasoning" && (
+          <details className="mb-4 rounded-lg bg-gray-800/50 p-3 w-full max-w-full">
+            <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
+              View Reasoning
+            </summary>
+            <div className="mt-2 text-sm text-gray-400 overflow-x-auto">
+              <pre className="whitespace-pre-wrap break-words">
+                {part.details?.map((detail, i) => (
+                  <div key={i}>
+                    {detail.type === "text" ? detail.text : "<redacted>"}
+                  </div>
+                ))}
+              </pre>
+            </div>
+          </details>
+        )}
+      </div>
+    ))}
+  </div>
 ) : (
-  <div className="w-full max-w-full overflow-x-auto break-words">
+  <div className="w-full max-w-full overflow-x-auto break-words pb-8">
     <MemoizedMarkdown
       content={message.content}
       id={message.id}
