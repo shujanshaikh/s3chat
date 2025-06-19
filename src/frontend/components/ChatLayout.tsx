@@ -226,8 +226,8 @@ export default function ChatLayout() {
           className={`
   ${isMobile ? "fixed" : "relative"} 
   flex flex-col bg-gradient-to-b bg-pink-800/15 backdrop-blur-md border-l border-pink-900/30 shadow-2xl w-75 min-w-[18rem] transition-all duration-300 no-scrollbar
-  ${isMobile ? "inset-y-0 right-0 z-50 pt-16" : ""}
-  ${isMobile ? (sidebarOpen ? "translate-x-0" : "translate-x-full") : ""}
+  ${isMobile ? "inset-y-0 right-0 z-999 pt-16" : ""}
+  ${isMobile ? (sidebarOpen ? "translate-x-0" : "translate-x-full") : ""} 
   ${isMobile ? "max-w-[80vw]" : ""}
 `}
         >

@@ -197,58 +197,58 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                       />
                     </button>
                     {/* Check if message has parts (reasoning) or just content */}
-                    {message.parts ? (
-                      // Handle structured message with reasoning and images
-                      message.parts.map((part, partIndex) => (
-                        <div key={partIndex}>
-                          {part.type === "text" && (
-                            <MemoizedMarkdown
-                              content={part.text}
-                              id={message.id}
-                              size="default"
-                            />
-                          )}
-                          {part.type === "file" &&
-                            part.mimeType?.startsWith("image/") && (
-                              <div className="my-4">
-                                <Image
-                                  src={`data:${part.mimeType};base64,${part.data}`}
-                                  alt="Generated image"
-                                  className="max-w-full h-auto rounded-lg shadow-lg"
-                                  loading="lazy"
-                                  width={100}
-                                  height={100}
-                                />
-                              </div>
-                            )}
-                          {part.type === "reasoning" && (
-                            <details className="mb-4 rounded-lg bg-gray-800/50 p-3">
-                              <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
-                                View Reasoning
-                              </summary>
-                              <div className="mt-2 text-sm text-gray-400">
-                                <pre className="whitespace-pre-wrap">
-                                  {part.details?.map((detail, i) => (
-                                    <div key={i}>
-                                      {detail.type === "text"
-                                        ? detail.text
-                                        : "<redacted>"}
-                                    </div>
-                                  ))}
-                                </pre>
-                              </div>
-                            </details>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      // Handle simple string content
-                      <MemoizedMarkdown
-                        content={message.content}
-                        id={message.id}
-                        size="default"
-                      />
-                    )}
+       {message.parts ? (
+  message.parts.map((part, partIndex) => (
+    <div key={partIndex} className="w-full max-w-full overflow-x-auto break-words">
+      {part.type === "text" && (
+        <MemoizedMarkdown
+          content={part.text}
+          id={`${message.id}-text-${partIndex}`}
+          size="default"
+        />
+      )}
+
+      {part.type === "file" && part.mimeType?.startsWith("image/") && (
+        <div className="my-4 w-full max-w-full flex justify-center">
+          <Image
+            src={`data:${part.mimeType};base64,${part.data}`}
+            alt="Generated image"
+            className="w-full max-w-[100%] h-auto rounded-lg shadow-lg"
+            loading="lazy"
+            width={100}
+            height={100}
+          />
+        </div>
+      )}
+
+      {part.type === "reasoning" && (
+        <details className="mb-4 rounded-lg bg-gray-800/50 p-3 w-full max-w-full">
+          <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
+            View Reasoning
+          </summary>
+          <div className="mt-2 text-sm text-gray-400 overflow-x-auto">
+            <pre className="whitespace-pre-wrap break-words">
+              {part.details?.map((detail, i) => (
+                <div key={i}>
+                  {detail.type === "text" ? detail.text : "<redacted>"}
+                </div>
+              ))}
+            </pre>
+          </div>
+        </details>
+      )}
+    </div>
+  ))
+) : (
+  <div className="w-full max-w-full overflow-x-auto break-words">
+    <MemoizedMarkdown
+      content={message.content}
+      id={message.id}
+      size="default"
+    />
+  </div>
+)}
+
                   </div>
                 </div>
               )}

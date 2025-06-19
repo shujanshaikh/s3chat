@@ -17,9 +17,9 @@ export const createMessage = mutation({
     if (user == null) {
       throw new Error("Not Authorized");
     }
-    const thread = await ctx.db.get(args.threadId)
-    if(!thread || thread.userId !== user.subject!) {
-      throw new Error("No Thread Found")
+    const thread = await ctx.db.get(args.threadId);
+    if (!thread || thread.userId !== user.subject!) {
+      throw new Error("No Thread Found");
     }
 
     const message = await ctx.db.insert("messages", {
@@ -38,18 +38,35 @@ export const getMessages = query({
   args: { threadId: v.id("threads") },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
-    if(user == null) {
-      throw new Error("Not Authorized")
+    if (user == null) {
+      throw new Error("Not Authorized");
     }
 
-    const thread = await ctx.db.get(args.threadId)
-    if(!thread || thread.userId !== user.subject!) {
-      throw new Error("No Thread Found")
+    const thread = await ctx.db.get(args.threadId);
+    if (!thread || thread.userId !== user.subject!) {
+      throw new Error("No Thread Found");
     }
 
     return await ctx.db
       .query("messages")
       .withIndex("by_thread_created_at", (q) => q.eq("threadId", args.threadId))
       .collect();
+  },
+});
+
+export const getMessageById = query({
+  args: { messageId: v.id("messages") },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (user == null) {
+      throw new Error("Not Authorized");
+    }
+
+    const message = await ctx.db.get(args.messageId);
+    if (!message || message.threadId !== user.subject!) {
+      throw new Error("No Message Found");
+    }
+    console.log("message", message._id);
+    return message;
   },
 });

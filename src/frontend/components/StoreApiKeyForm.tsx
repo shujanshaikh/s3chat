@@ -6,7 +6,8 @@ import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card" // Keep imports but remove usage of CardHeader content
 import { Separator } from "./ui/separator"
 import { Badge } from "./ui/badge"
-import { Eye, EyeOff, Key, Trash2, Shield, CheckCircle2 } from "lucide-react"
+import { Eye, EyeOff, Key, Trash2, Shield, CheckCircle2, ChevronLeft, } from "lucide-react"
+import { useNavigate } from "react-router"
 
 export function StoreApiKeyForm() {
   const { keys, setKeys, hasRequiredKeys, getKey } = useAPIKeyStore()
@@ -15,7 +16,7 @@ export function StoreApiKeyForm() {
   const [anthropic, setAnthropic] = useState(getKey("anthropic") || "")
   const [google, setGoogle] = useState(getKey("google") || "")
   const [groq, setGroq] = useState(getKey("groq") || "")
-
+     const navigate = useNavigate();
   const [showKeys, setShowKeys] = useState({
     openai: false,
     anthropic: false,
@@ -72,9 +73,10 @@ export function StoreApiKeyForm() {
 
   return (
     <div className="w-full max-w-2xl mx-auto h-full">
+
+      
       {/* Made the Card transparent and removed shadow/border */}
       <Card className="bg-transparent border-0 shadow-none">
-
         {/* Adjusted padding slightly if needed, but space-y-6 inside is good */}
         <CardContent className="space-y-6 pt-0"> {/* Added pt-0 to remove top padding from CardContent */}
           <div className="grid gap-6">

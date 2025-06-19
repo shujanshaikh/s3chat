@@ -16,7 +16,7 @@ export const createAttachment = mutation({
     if (!message) {
       throw new Error("Message not found");
     }
-
+  
     // Insert the attachment into the database
     const attachment = await ctx.db.insert("attachments", {
       messageId: message._id, // Store the message ID
