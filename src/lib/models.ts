@@ -85,6 +85,13 @@ export const models: ModelInfo[] = [
     category: "Premium",
     description: "High-performance open-source model",
   },
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 Distill Llama 70B",
+    provider: "Groq",
+    category: "Premium",
+    description: "High-performance open-source model",
+  },
 ];
 
 // Default model
@@ -141,7 +148,11 @@ export const getModel = (modelName: string, apiKeyOverride?: string) => {
       return createGroq({
         apiKey: getApiKey("Groq", apiKeyOverride),
       })("meta-llama/llama-4-scout-17b-16e-instruct");
-
+    case "deepseek-r1-distill-llama-70b":
+      return createGroq({
+        apiKey: getApiKey("Groq", apiKeyOverride),
+      })("deepseek-r1-distill-llama-70b");
+    
     // Default to Gemini 1.5 Flash
     default:
       return google(DEFAULT_MODEL);

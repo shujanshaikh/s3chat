@@ -2,7 +2,6 @@ import { useUploadThing } from "@/utils/uploadthings";
 import { ArrowUp, ChevronDown, Paperclip, X } from "lucide-react";
 import type React from "react";
 import { useRef, useEffect, useCallback, useState } from "react";
-import Image from "next/image";
 
 interface Attachment {
   url: string;
@@ -121,12 +120,10 @@ const { startUpload, isUploading } = useUploadThing("imageUploader", {
                 {attachments.map((attachment, index) => (
                   <div key={index} className="relative">
                     {attachment.contentType?.startsWith("image/") ? (
-                      <Image
+                      <img
                         src={attachment.url}
                         alt={attachment.name || "Attachment"}
                         className="w-12 h-12 rounded-lg object-cover border border-gray-600"
-                        width={48}
-                        height={48}
                       />
                     ) : (
                       <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center border border-gray-600">
@@ -236,61 +233,77 @@ const { startUpload, isUploading } = useUploadThing("imageUploader", {
                     </button>
 
                     {/* Mobile Dropdown - full screen overlay */}
-                    {isDropdownOpen && (
-                      <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm">
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/90 rounded-t-2xl border-t border-pink-200/30 max-h-[70vh] overflow-hidden">
-                          <div className="p-4 border-b border-pink-200/20">
-                            <div className="flex items-center justify-between">
-                              <h2 className="text-lg font-semibold text-white">Select Model</h2>
-                              <button
-                                onClick={onDropdownClose}
-                                className="text-gray-400 hover:text-white p-1"
-                              >
-                                <X className="h-5 w-5" />
-                              </button>
-                            </div>
-                          </div>
-                          
-                          <div className="overflow-y-auto max-h-[calc(70vh-80px)] p-4">
-                            <div className="text-pink-700 text-lg font-bold mb-4 text-center">
-                              Provide your own API Key to use Anthropic & OpenAI models in Settings
-                            </div>
-                            {Object.entries(groupedModels).map(
-                              ([provider, models]) => (
-                                <div key={provider} className="mb-4">
-                                  <div className="px-2 py-1.5 text-xs font-semibold text-pink-300 uppercase tracking-wide border-b border-pink-400/20 mb-2">
-                                    {provider}
-                                  </div>
-                                  {models.map((model) => (
-                                    <button
-                                      key={model.id}
-                                      type="button"
-                                      onClick={() => {
-                                        onModelSelect(model.id);
-                                        onDropdownClose();
-                                      }}
-                                      className={`w-full rounded-lg px-3 py-3 text-left text-sm mb-2
-                                              hover:bg-pink-400/20 transition-all duration-200 ${
-                                                selectedModel === model.id
-                                                  ? "bg-pink-400/25 border border-pink-400/40"
-                                                  : "hover:border hover:border-pink-400/20"
-                                              }`}
-                                    >
-                                      <div className="text-white font-medium">
-                                        {model.name}
-                                      </div>
-                                      <div className="text-xs text-pink-200/70 mt-1">
-                                        {model.description}
-                                      </div>
-                                    </button>
-                                  ))}
-                                </div>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+           {isDropdownOpen && (
+  <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm">
+    <div className="absolute bottom-0 left-0 right-0 bg-black/90 rounded-t-2xl border-t border-pink-200/30 max-h-[70vh] overflow-hidden">
+      <div className="p-4 border-b border-pink-200/20">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">Select Model</h2>
+          <button
+            onClick={onDropdownClose}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              onDropdownClose();
+            }}
+            className="text-gray-400 hover:text-white p-1 touch-manipulation"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+      
+      <div className="overflow-y-auto max-h-[calc(70vh-80px)] p-4">
+        <div className="text-pink-700 text-lg font-bold mb-4 text-center">
+          Provide your own API Key to use Anthropic & OpenAI models in Settings
+        </div>
+        {Object.entries(groupedModels).map(
+          ([provider, models]) => (
+            <div key={provider} className="mb-4">
+              <div className="px-2 py-1.5 text-xs font-semibold text-pink-300 uppercase tracking-wide border-b border-pink-400/20 mb-2">
+                {provider}
+              </div>
+              {models.map((model) => (
+                <button
+                  key={model.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onModelSelect(model.id);
+                    onDropdownClose();
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onModelSelect(model.id);
+                    onDropdownClose();
+                  }}
+                  className={`w-full rounded-lg px-3 py-3 text-left text-sm mb-2
+                          hover:bg-pink-400/20 transition-all duration-200 touch-manipulation cursor-pointer ${
+                            selectedModel === model.id
+                              ? "bg-pink-400/25 border border-pink-400/40"
+                              : "hover:border hover:border-pink-400/20"
+                          }`}
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
+                >
+                  <div className="text-white font-medium pointer-events-none">
+                    {model.name}
+                  </div>
+                  <div className="text-xs text-pink-200/70 mt-1 pointer-events-none">
+                    {model.description}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  </div>
+)}
                   </div>
                 </div>
 
@@ -340,12 +353,10 @@ const { startUpload, isUploading } = useUploadThing("imageUploader", {
                   {attachments.map((attachment, index) => (
                     <div key={index} className="relative">
                       {attachment.contentType?.startsWith("image/") ? (
-                        <Image
+                        <img
                           src={attachment.url}
                           alt={attachment.name || "Attachment"}
                           className="w-16 h-16 rounded-lg object-cover border border-gray-600"
-                          width={64}
-                          height={64}
                         />
                       ) : (
                         <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center border border-gray-600">
