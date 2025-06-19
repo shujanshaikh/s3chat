@@ -173,19 +173,24 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                   <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative">
                     {/* Copy Button for this assistant message */}
                     <button
-                      className="rounded transition justify-start p-2 absolute top-0 right-0 cursor-pointer"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          message.parts
+                      className="rounded transition justify-start p-2 absolute bottom-0 right-0 cursor-pointer"
+                      onClick={async () => {
+                        try {
+                          const textToCopy = message.parts
                             ? message.parts
                                 .filter((part) => part.type === "text")
                                 .map((part) => part.text)
                                 .join("\n")
-                            : message.content
-                        );
-                        setCopied(message.id);
-                        toast.success("Copied to clipboard");
-                        setTimeout(() => setCopied(null), 1500);
+                            : message.content;
+                          
+                          await navigator.clipboard.writeText(textToCopy);
+                          setCopied(message.id);
+                          toast.success("Copied to clipboard");
+                          setTimeout(() => setCopied(null), 1500);
+                        } catch (error) {
+                          console.error("Failed to copy text:", error);
+                          toast.error("Failed to copy to clipboard");
+                        }
                       }}
                       aria-label="Copy response"
                     >

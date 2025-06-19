@@ -2,6 +2,7 @@ import { useUploadThing } from "@/utils/uploadthings";
 import { ArrowUp, ChevronDown, Paperclip, X } from "lucide-react";
 import type React from "react";
 import { useRef, useEffect, useCallback, useState } from "react";
+import Image from "next/image";
 
 interface Attachment {
   url: string;
@@ -120,10 +121,12 @@ const { startUpload, isUploading } = useUploadThing("imageUploader", {
                 {attachments.map((attachment, index) => (
                   <div key={index} className="relative">
                     {attachment.contentType?.startsWith("image/") ? (
-                      <img
+                      <Image
                         src={attachment.url}
                         alt={attachment.name || "Attachment"}
                         className="w-12 h-12 rounded-lg object-cover border border-gray-600"
+                        width={48}
+                        height={48}
                       />
                     ) : (
                       <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center border border-gray-600">
@@ -337,10 +340,12 @@ const { startUpload, isUploading } = useUploadThing("imageUploader", {
                   {attachments.map((attachment, index) => (
                     <div key={index} className="relative">
                       {attachment.contentType?.startsWith("image/") ? (
-                        <img
+                        <Image
                           src={attachment.url}
                           alt={attachment.name || "Attachment"}
                           className="w-16 h-16 rounded-lg object-cover border border-gray-600"
+                          width={64}
+                          height={64}
                         />
                       ) : (
                         <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center border border-gray-600">
