@@ -24,6 +24,7 @@ export default defineSchema({
     role : v.union(v.literal("user"), v.literal("assistant") , v.literal("system")),
     model : v.string(),
     content : v.string(),
+    attachmentIds : v.optional(v.array(v.id("attachments"))),
     createdAt : v.number(),
    }).index("by_thread", ["threadId"])
    .index("by_thread_created_at", ["threadId", "createdAt"]),
@@ -44,4 +45,12 @@ export default defineSchema({
     createdAt : v.number(),
   }).index("by_userId", ["userId"]),
 
+
+  attachments : defineTable({
+    messageId : v.id("messages"),
+    name : v.string(),
+    url : v.string(),
+    contentType : v.string(),
+    createdAt : v.number(),
+  }).index("by_messageId", ["messageId"]),
 });

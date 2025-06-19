@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { NavLink, Outlet, useParams } from "react-router-dom";
@@ -9,6 +7,7 @@ import { ChevronLeft, ChevronRight, Menu, X, Search } from "lucide-react";
 import { useMessageSummary } from "../hooks/useMessageSummary";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { NewChatButton } from "./NewChatButton";
+
 
 export default function ChatLayout() {
   const threads = useQuery(api.threads.getThreads);
@@ -20,7 +19,8 @@ export default function ChatLayout() {
   const { threadId: currentThreadId } = useParams<{
     threadId: Id<"threads">;
   }>();
-
+ 
+  
   const messageSummary = useQuery(api.messages.getMessages, {
     threadId: currentThreadId!,
   });
@@ -68,14 +68,8 @@ export default function ChatLayout() {
 
     const handleClickOutside = (e: MouseEvent) => {
       const sidebar = document.getElementById("mobile-sidebar");
-      const menuButton = document.getElementById("mobile-menu-button");
 
-      if (
-        sidebar &&
-        menuButton &&
-        !sidebar.contains(e.target as Node) &&
-        !menuButton.contains(e.target as Node)
-      ) {
+      if (sidebar && !sidebar.contains(e.target as Node)) {
         setSidebarOpen(false);
       }
     };
@@ -217,34 +211,6 @@ export default function ChatLayout() {
 
   return (
     <div className="flex h-dvh flex-row-reverse relative">
-      {/* Mobile Top Bar */}
-      {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-pink-900/10 to-pink-900/20 border-b border-pink-900/30 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 ">
-              <h1
-                style={{
-                  fontFamily: "'Montserrat', sans-serif",
-                  fontWeight: 700,
-                  color: "#d6b4d8",
-                }}
-                className="text-xl tracking-tight"
-              >
-                S3.chat
-              </h1>
-            </div>
-            <button
-              id="mobile-menu-button"
-              className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-2.5 shadow-lg hover:bg-pink-700/80 transition-colors touch-manipulation"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              title="Open menu"
-            >
-              <Menu size={20} className="text-pink-300" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
@@ -355,8 +321,19 @@ export default function ChatLayout() {
         </button>
       )}
 
+      {/* Mobile Floating Menu Button */}
+      {isMobile && !sidebarOpen && (
+        <button
+          className="fixed top-4 right-4 z-30 bg-gradient-to-b from-pink-500/20 to-pink-500/40 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-pink-700/80 transition-colors touch-manipulation"
+          onClick={() => setSidebarOpen(true)}
+          title="Open sidebar"
+        >
+          <Menu size={20} className="text-pink-300" />
+        </button>
+      )}
+
       {/* Main Content */}
-      <main className={`flex-1 relative ${isMobile ? "pt-16" : ""}`}>
+      <main className="flex-1 relative">
         <Outlet />
       </main>
     </div>

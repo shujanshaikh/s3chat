@@ -1,8 +1,11 @@
-"use client";
-
-import { ArrowUp, ChevronDown, Paperclip } from "lucide-react";
+import { ArrowUp, ChevronDown, Paperclip, X } from "lucide-react";
 import type React from "react";
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { Attachment } from "@ai-sdk/ui-utils";
+import { useUploadThing } from "@/utils/uploadthings";
+import { toast } from "sonner";
+import Image from "next/image";
+import { Progress } from "./ui/progress";
 
 interface MessageBoxProps {
   input: string;
@@ -23,6 +26,8 @@ interface MessageBoxProps {
   onDropdownClose: () => void;
   error: string | null;
   reload: () => void;
+  attachments: Attachment[];
+  setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>;
 }
 
 export default function MessageBox({
@@ -41,9 +46,33 @@ export default function MessageBox({
   onModelSelect,
   onDropdownToggle,
   onDropdownClose,
+  attachments,
+  setAttachments,
 }: MessageBoxProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  
+  const { startUpload, isUploading } = useUploadThing("imageUploader", {
+    onClientUploadComplete: (res) => {
+      if (!res) return;
+      const newAttachments = res.map((file) => ({
+        url: file.url,
+        name: file.name,
+        contentType: file.type,
+      }));
+      setAttachments((prev) => [...prev, ...newAttachments]);
+      toast.success("File uploaded successfully!");
+      setUploadProgress(0);
+    },
+    onUploadError: (error: Error) => {
+      toast.error(`Upload failed: ${error.message}`);
+      setUploadProgress(0);
+    },
+    onUploadProgress: setUploadProgress,
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle clicking outside dropdown
   useEffect(() => {
@@ -82,6 +111,56 @@ export default function MessageBox({
       <div className="relative">
         {/* Main input container */}
         <div className="bg-pink-300/15 backdrop-blur-md rounded-t-2xl border border-pink-200/20 p-1">
+          {/* Display current attachments */}
+          {attachments.length > 0 && (
+            <div className="px-5 pt-3">
+              <div className="flex flex-wrap gap-2">
+                {attachments.map((attachment, index) => (
+                  <div key={index} className="relative">
+                    {attachment.contentType?.startsWith("image/") ? (
+                      <Image
+                        src={attachment.url}
+                        alt={attachment.name || "Attachment"}
+                        width={60}
+                        height={60}
+                        className="rounded-lg object-cover border border-gray-600"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center border border-gray-600">
+                        <span className="text-xs text-gray-300 text-center px-1">
+                          {attachment.name || "File"}
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() =>
+                        setAttachments((prev) =>
+                          prev.filter((_, i) => i !== index)
+                        )
+                      }
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-red-600"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {isUploading && (
+            <div className="px-5 pt-3 pb-1">
+              <div className="flex items-center gap-3 text-xs text-pink-200/80">
+                <Progress
+                  value={uploadProgress}
+                  className="h-1.5 w-full bg-pink-400/20"
+                  indicatorClassName="bg-pink-400"
+                />
+                <span className="w-8 text-right">
+                  {uploadProgress.toFixed(0)}%
+                </span>
+              </div>
+            </div>
+          )}
           <form onSubmit={onSubmit}>
             {/* Text input area */}
             <div className="px-5 pt-4 pb-2">
@@ -113,6 +192,26 @@ export default function MessageBox({
             <div className="flex items-center justify-between px-3 pb-3">
               {/* Left controls */}
               <div className="flex items-center gap-3">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      startUpload(Array.from(e.target.files));
+                    }
+                  }}
+                  className="hidden"
+                  multiple
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                  aria-label="Add attachment"
+                  disabled={isUploading}
+                >
+                  <Paperclip className="h-5 w-5" />
+                </button>
                 {/* Model selector - minimal */}
                 <div className="relative" ref={dropdownRef}>
                   <button
@@ -128,10 +227,10 @@ export default function MessageBox({
 
                   {/* Dropdown */}
                   {isDropdownOpen && (
-                                          <div
-                        className="absolute bottom-full mb-2 w-[480px]  rounded-2xl border border-pink-200/30 
-                                     bg-black/90  shadow-2xl z-20 no-scrollbar "
-                      >
+                    <div
+                      className="absolute bottom-full mb-2 w-[480px]  rounded-2xl border border-pink-200/30 
+                                   bg-black/90  shadow-2xl z-20 no-scrollbar "
+                    >
                       <div className="max-h-80 overflow-y-auto no-scrollbar p-6">
                         <h1 className="text-pink-700 text-lg font-bold mb-4 text-center">Provider your own API Key to use Antropic & OpenAI models in Settings</h1>
                         {Object.entries(groupedModels).map(
@@ -178,7 +277,7 @@ export default function MessageBox({
                   <button
                     type="button"
                     onClick={onStop}
-                    className="px-3 py-1.5 rounded-full bg-pink-400/20 text-gray-300 text-xs 
+                    className="px-3 py-1.5 rounded-full bg-pink-400/20 text-white text-sm
                              hover:bg-pink-400/30 transition-all duration-200"
                     aria-label="Stop"
                     disabled={isLoading === false}

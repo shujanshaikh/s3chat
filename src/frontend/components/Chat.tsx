@@ -15,13 +15,14 @@ import Image from "next/image";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useAPIKeyStore } from "../store/apiKey";
+import { Attachment } from "@ai-sdk/ui-utils";
 
 export default function Chat(props: { threadId: Id<"threads"> }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const { threadId } = props;
-
+  const [attachments, setAttachments] = useState<Attachment[]>([]); // Use state to store attachments
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -70,14 +71,21 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    await createMessage({
+   const message =  await createMessage({
       threadId: threadId!,
       role: "user",
       content: input,
       model: selectedModel,
     });
 
-    handleSubmit(e);
+
+    // Submit the message along with the attachments
+    handleSubmit(e, {
+      experimental_attachments: attachments,
+    });
+
+    // Clear attachments after submission
+    setAttachments([]);
   };
 
   const handleStop = () => {
@@ -140,6 +148,23 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
                     <div className="whitespace-pre-wrap break-words text-pretty text-gray-100 text-sm sm:text-base leading-relaxed">
                       {message.content}
                     </div>
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {message.experimental_attachments
+                      ?.filter(attachment =>
+                        attachment.contentType?.startsWith('image/'),
+                      )
+                      .map((attachment, index) => (
+                        <div key={`${message.id}-${index}`} className="max-w-xs">
+                          <Image
+                            src={attachment.url}
+                            alt={attachment.name || "Attachment"}
+                            width={300}
+                            height={200}
+                            className="rounded-lg object-cover"
+                          />
+                        </div>
+                      ))}
                   </div>
                 </div>
               ) : (
@@ -291,6 +316,8 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
         onModelSelect={setSelectedModel}
         onDropdownToggle={() => setIsDropdownOpen(!isDropdownOpen)}
         onDropdownClose={() => setIsDropdownOpen(false)}
+        attachments={attachments}
+        setAttachments={setAttachments}
       />
     </div>
   );
