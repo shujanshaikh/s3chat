@@ -276,7 +276,6 @@ const { startUpload, isUploading } = useUploadThing("imageUploader", {
                     e.preventDefault();
                     e.stopPropagation();
                     onModelSelect(model.id);
-                    onDropdownClose();
                   }}
                   className={`w-full rounded-lg px-3 py-3 text-left text-sm mb-2
                           hover:bg-pink-400/20 transition-all duration-200 touch-manipulation cursor-pointer ${
