@@ -10,7 +10,7 @@ import { api } from "../../../../convex/_generated/api";
 import { CONVEX_HTTP_CLIENT } from "@/frontend/localdb/convex/convex-http";
 
 
-const FREE_MESSAGES_LIMIT = 1000;
+const FREE_MESSAGES_LIMIT = 5000;
 
 export async function POST(req: NextRequest) {
   try {
