@@ -1,32 +1,43 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+
 
 export const createAttachment = mutation({
   args: {
-    messageId: v.id("messages"), // Expecting a valid message ID
-    fileUrl: v.string(),          // URL of the uploaded file
-    fileName: v.string(),         // Name of the file
-    contentType: v.string(),      // Content type of the file
+    messageId: v.string(),
+    fileUrl: v.string(),
+    fileName: v.string(),
+    contentType: v.string(),
   },
   handler: async (ctx, args) => {
     const { messageId, fileUrl, fileName, contentType } = args;
 
-    // Check if the message exists
-    const message = await ctx.db.get(messageId);
+    // Check if the message exists in the database by messageId
+    const message = await ctx.db.get(messageId as any);
     if (!message) {
-      throw new Error("Message not found");
+      throw new Error("Message not found in the database");
     }
   
     // Insert the attachment into the database
     const attachment = await ctx.db.insert("attachments", {
-      messageId: message._id, // Store the message ID
-      name: fileName,       // Store the file name
-      url: fileUrl,        // Store the file URL
-      contentType,         // Store the content type
-      createdAt: Date.now(), // Store the current timestamp
+      messageId: messageId,
+      name: fileName,
+      url: fileUrl,
+      contentType,
+      createdAt: Date.now(),
     });
 
     console.log("attachment", attachment);
-    return attachment; // Return the created attachment
+    return attachment;
+  },
+});
+
+export const getAttachmentsByMessageId = query({
+  args: { messageId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("attachments")
+      .filter((q) => q.eq(q.field("messageId"), args.messageId))
+      .collect();
   },
 });

@@ -14,13 +14,13 @@ export default function Setting() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-pink-900/10 to-pink-900/20 min-h-screen text-white w-full no-scrollbar">
+    <div className="bg-zinc-900 min-h-screen text-white w-full no-scrollbar">
       {/* Mobile/Tablet Header */}
-      <div className="lg:hidden sticky top-0 z-10 bg-gradient-to-r from-pink-900/20 to-pink-900/30 backdrop-blur-sm border-b border-pink-500/20 p-4">
+      <div className="lg:hidden sticky top-0 z-10 bg-zinc-800/70 backdrop-blur-sm border-b border-zinc-700/20 p-4">
         <Button 
           onClick={handleBack}  
           variant="outline" 
-          className="bg-transparent border-pink-500/30 text-pink-400 hover:bg-pink-500/10 hover:border-pink-500/50 mb-4"
+          className="bg-transparent border-zinc-600/30 text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/50 mb-4"
         >
           <ChevronLeft className="w-4 h-4 mr-2"/>
           Back to Chat
@@ -30,7 +30,7 @@ export default function Setting() {
         <div className="flex items-center space-x-4">
           <Avatar className="w-12 h-12">
             <AvatarImage src={user?.imageUrl} />
-            <AvatarFallback className="bg-pink-600 text-white">
+            <AvatarFallback className="bg-indigo-600 text-white">
               {user?.fullName?.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -52,7 +52,7 @@ export default function Setting() {
               <Button 
                 onClick={handleBack}  
                 variant="outline" 
-                className="bg-transparent border-pink-500/30 text-pink-400 hover:bg-pink-500/10 hover:border-pink-500/50"
+                className="bg-transparent border-zinc-600/30 text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/50"
               >
                 <ChevronLeft className="w-4 h-4 mr-2"/>
                 Back to Chat
@@ -62,7 +62,7 @@ export default function Setting() {
             <div className="flex flex-col items-center mb-8">
               <Avatar className="w-24 h-24 mb-4">
                 <AvatarImage src={user?.imageUrl} />
-                <AvatarFallback className="bg-pink-600 text-white text-xl">
+                <AvatarFallback className="bg-indigo-600 text-white text-xl">
                   {user?.fullName?.charAt(0)}
                 </AvatarFallback>
               </Avatar>

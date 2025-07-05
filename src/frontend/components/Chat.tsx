@@ -4,40 +4,225 @@ import {
   getModelInfo,
 } from "@/lib/models";
 import { Message, useChat } from "@ai-sdk/react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Id } from "../../../convex/_generated/dataModel";
 import MemoizedMarkdown from "./MemorizedMarkdown";
 import MessageBox from "./Message-box";
 import Error from "./ui/error";
 import Image from "next/image";
 import { Copy } from "lucide-react";
-import { toast } from "sonner";
 import { useAPIKeyStore } from "../store/apiKey";
 import { Attachment } from "@ai-sdk/ui-utils";
+import { MessageAttachments } from "./Message-attachment";
 
-export default function Chat(props: { threadId: Id<"threads"> }) {
+const MessageContent = memo(
+  ({ message, isLoading }: { message: Message; isLoading: boolean }) => {
+    const [copied, setCopied] = useState(false);
+
+    const onCopy = useCallback(async () => {
+      try {
+        const textToCopy = message.parts
+          ? message.parts
+              .filter((part) => part.type === "text")
+              .map((part) => part.text)
+              .join("\n")
+          : message.content;
+
+        await navigator.clipboard.writeText(textToCopy);
+        setCopied(true);
+      } catch (error) {
+        console.error("Failed to copy text:", error);
+      }
+    }, [message.content, message.parts]);
+
+    if (message.role === "user") {
+      return (
+        <div className="max-w-[85%] sm:max-w-[80%] p-1 sm:p-2">
+          <div className="relative rounded-xl bg-indigo-800/30 px-3 sm:px-5 py-3 sm:py-4 text-white">
+            <div className="whitespace-pre-wrap break-words text-pretty text-gray-100 text-sm sm:text-base leading-relaxed">
+              {message.content}
+            </div>
+          </div>
+          <MessageAttachments message={message} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex w-full max-w-full items-start gap-2 sm:gap-4 pl-2 sm:pl-4">
+        <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative group">
+          {!isLoading && (
+            <button
+              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+                               absolute bottom-2 left-2 z-10 
+                               text-gray-400 hover:text-gray-200 
+                               p-1 rounded"
+              onClick={onCopy}
+              aria-label="Copy response"
+              title="Copy to clipboard"
+            >
+              <Copy
+                className={`transition-colors duration-200 ${
+                  copied
+                    ? "text-indigo-400"
+                    : "text-gray-400 hover:text-gray-200"
+                }`}
+                size={14}
+              />
+            </button>
+          )}
+          {message.parts ? (
+            <div className="pb-8">
+              {message.parts.map((part, partIndex) => (
+                <div
+                  key={partIndex}
+                  className="w-full max-w-full overflow-x-auto break-words"
+                >
+                  {part.type === "text" && (
+                    <MemoizedMarkdown
+                      content={part.text}
+                      id={`${message.id}-text-${partIndex}`}
+                      size="default"
+                    />
+                  )}
+
+                  {part.type === "file" &&
+                    part.mimeType?.startsWith("image/") && (
+                      <div className="my-4 w-full max-w-full flex justify-center">
+                        <Image
+                          src={`data:${part.mimeType};base64,${part.data}`}
+                          alt="Generated image"
+                          className="w-full max-w-[100%] h-auto rounded-lg shadow-lg"
+                          loading="lazy"
+                          width={100}
+                          height={100}
+                        />
+                      </div>
+                    )}
+
+                  {part.type === "reasoning" && (
+                    <details className="mb-4 rounded-lg p-3 w-full max-w-full">
+                      <summary className="cursor-pointer text-md font-sans text-indigo-100/90  ">
+                        Reasoning
+                      </summary>
+                      <div className="mt-2 text-sm text-gray-400 overflow-x-auto">
+                        <pre className="whitespace-pre-wrap break-words bg-indigo-900/10">
+                          {part.details?.map((detail, i) => (
+                            <div key={i}>
+                              {detail.type === "text"
+                                ? detail.text
+                                : "<redacted>"}
+                            </div>
+                          ))}
+                        </pre>
+                      </div>
+                    </details>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="w-full max-w-full overflow-x-auto break-words pb-8">
+              <MemoizedMarkdown
+                content={message.content}
+                id={message.id}
+                size="default"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.message.id === nextProps.message.id &&
+      prevProps.message.content === nextProps.message.content &&
+      prevProps.message.role === nextProps.message.role &&
+      JSON.stringify(prevProps.message.parts) === JSON.stringify(nextProps.message.parts) &&
+      prevProps.isLoading === nextProps.isLoading
+    );
+  }
+);
+
+MessageContent.displayName = "MessageContent";
+
+const MessageWrapper = memo(
+  ({ 
+    message, 
+    index, 
+    isLastMessage, 
+    isLoading 
+  }: { 
+    message: Message; 
+    index: number; 
+    isLastMessage: boolean; 
+    isLoading: boolean; 
+  }) => {
+    const animationDelay = useMemo(() => `${index * 50}ms`, [index]);
+    
+    return (
+      <div
+        className={`flex animate-in fade-in-0 slide-in-from-bottom-3 duration-300 ease-out ${
+          message.role === "user" ? "justify-end" : "justify-start"
+        }`}
+        style={{ animationDelay }}
+      >
+        <MessageContent 
+          message={message} 
+          isLoading={isLastMessage && isLoading} 
+        />
+
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.message.id === nextProps.message.id &&
+      prevProps.message.content === nextProps.message.content &&
+      prevProps.index === nextProps.index &&
+      prevProps.isLastMessage === nextProps.isLastMessage &&
+      (!nextProps.isLastMessage || prevProps.isLoading === nextProps.isLoading)
+    );
+  }
+);
+
+MessageWrapper.displayName = "MessageWrapper";
+
+const groupedModels = groupModelsByProvider();
+
+function Chat(props: { threadId: string }) {
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
   const { threadId } = props;
-  const [attachments, setAttachments] = useState<Attachment[]>([]); // Use state to store attachments
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [webSearch, setWebSearch] = useState(false);
 
   const initialMessages = useQuery(api.messages.getMessages, {
     threadId: threadId!,
   });
+
   const createMessage = useMutation(api.messages.createMessage);
+  const createAttachment = useMutation(api.attachments.createAttachment);
+
   const { getKey } = useAPIKeyStore();
 
-  const apiHeaders: Record<string, string> = {};
-  if (getKey("google")) apiHeaders["x-google-api-key"] = getKey("google")!;
-  if (getKey("openai")) apiHeaders["x-openai-api-key"] = getKey("openai")!;
-  if (getKey("anthropic"))
-    apiHeaders["x-anthropic-api-key"] = getKey("anthropic")!;
-  if (getKey("groq")) apiHeaders["x-groq-api-key"] = getKey("groq")!;
+  const apiHeaders = useMemo(() => {
+    const headers: Record<string, string> = {};
+    const googleKey = getKey("google");
+    const openaiKey = getKey("openai");
+    const anthropicKey = getKey("anthropic");
+    const groqKey = getKey("groq");
+    if (googleKey) headers["x-google-api-key"] = googleKey;
+    if (openaiKey) headers["x-openai-api-key"] = openaiKey;
+    if (anthropicKey)
+      headers["x-anthropic-api-key"] = anthropicKey;
+    if (groqKey) headers["x-groq-api-key"] = groqKey;
+    return headers;
+  }, [getKey]);
 
   const {
     messages,
@@ -55,7 +240,8 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
       role: message.role,
       content: message.content,
     })),
-    body: { model: selectedModel },
+    experimental_throttle: 100,
+    body: { model: selectedModel, webSearch: webSearch },
     onFinish: async (message: Message) => {
       await createMessage({
         threadId: threadId!,
@@ -67,50 +253,84 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     headers: apiHeaders,
   });
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-   const message =  await createMessage({
-      threadId: threadId!,
-      role: "user",
-      content: input,
-      model: selectedModel,
-    });
-
-
-    // Submit the message along with the attachments
-    handleSubmit(e, {
-      experimental_attachments: attachments,
-    });
-
-    // Clear attachments after submission
-    setAttachments([]);
-  };
-
-  const handleStop = () => {
-    stop();
-  };
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
-  const handleScroll = () => {
+  const handleFormSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!input.trim() || isLoading) return;
+
+      const messageId = await createMessage({
+        threadId: threadId!,
+        role: "user",
+        content: input,
+        model: selectedModel,
+      });
+
+      // Create attachments for this message
+      if (attachments.length > 0) {
+        try {
+          const attachmentPromises = attachments.map((attachment) =>
+            createAttachment({
+              messageId: messageId,
+              fileUrl: attachment.url,
+              fileName: attachment.name || "unknown",
+              contentType: attachment.contentType || "application/octet-stream",
+            })
+          );
+          // await Promise.all(attachmentPromises);
+          console.log("Attachments created successfully");
+        } catch (error) {
+          console.error("Failed to create attachments:", error);
+        }
+      }
+
+      // Submit the message along with the attachments
+      handleSubmit(e, {
+        experimental_attachments: attachments,
+      });
+
+      // Clear attachments after submission
+      setAttachments([]);
+
+      // Scroll to bottom after sending message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    },
+    [
+      input,
+      isLoading,
+      createMessage,
+      threadId,
+      attachments,
+      createAttachment,
+      handleSubmit,
+      selectedModel,
+      scrollToBottom,
+    ]
+  );
+
+  const handleStop = useCallback(() => {
+    stop();
+  }, [stop]);
+
+  const handleScroll = useCallback(() => {
     const container = scrollContainerRef.current;
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const isAtBottom = scrollHeight - scrollTop <= clientHeight + 20;
       setShowScrollButton(!isAtBottom);
     }
-  };
+  }, []);
 
-  // Only check scroll position on mount and when messages change (not for auto-scroll)
   useEffect(() => {
     handleScroll();
-  }, [messages.length]);
+  }, [messages.length, handleScroll]);
 
   const LoadingDots = () => (
     <div className="flex items-center gap-1 px-2 py-1">
@@ -120,152 +340,34 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
     </div>
   );
 
-  const groupedModels = groupModelsByProvider();
-  const currentModel = getModelInfo(selectedModel);
+  const currentModel = useMemo(
+    () => getModelInfo(selectedModel),
+    [selectedModel]
+  );
+  const onDropdownToggle = useCallback(
+    () => setIsDropdownOpen(!isDropdownOpen),
+    [isDropdownOpen]
+  );
+  const onDropdownClose = useCallback(() => setIsDropdownOpen(false), []);
 
   return (
-    <div className="flex h-dvh flex-col bg-pink-200/15 relative min-h-screen">
+    <div className="flex h-dvh flex-col bg-gradient-to-br from-zinc-900 via-zinc-900/95 to-indigo-950/30 relative min-h-screen">
       {/* Messages */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto px-2 sm:px-4 py-3 sm:py-6 scroll-smooth no-scrollbar"
-        style={{ paddingBottom: "140px" }} // Reserve space for MessageBox
+        style={{ paddingBottom: "140px" }} 
       >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:gap-8">
           {messages.map((message, index) => (
-            <div
-              key={message.id}
-              className={`flex animate-in fade-in-0 slide-in-from-bottom-3 duration-300 ease-out ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              {message.role === "user" ? (
-                // User message (unchanged)
-                <div className="max-w-[85%] sm:max-w-[80%] p-1 sm:p-2">
-                  <div className="relative rounded-xl sm:rounded-2xl bg-pink-700/10 px-3 sm:px-5 py-3 sm:py-4 text-white">
-                    <div className="whitespace-pre-wrap break-words text-pretty text-gray-100 text-sm sm:text-base leading-relaxed">
-                      {message.content}
-                    </div>
-                  </div>
-                  <div className="mt-2 space-y-2">
-                    {message.experimental_attachments
-                      ?.filter(attachment =>
-                        attachment.contentType?.startsWith('image/'),
-                      )
-                      .map((attachment, index) => (
-                        <div key={`${message.id}-${index}`} className="max-w-xs">
-                          <Image
-                            src={attachment.url}
-                            alt={attachment.name || "Attachment"}
-                            width={300}
-                            height={200}
-                            className="rounded-lg object-cover"
-                          />
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              ) : (
-                // Assistant message
-                <div className="flex w-full max-w-full items-start gap-2 sm:gap-4 pl-2 sm:pl-4">
-                  <div className="min-w-0 flex-1 prose prose-invert max-w-none text-gray-100 prose-p:text-gray-100 rounded-none relative group">
-                    {/* Copy Button for this assistant message */}
-                    {!isLoading && (
-                      <button
-                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 
-                                   absolute bottom-2 left-2 z-10 
-                                   text-gray-400 hover:text-gray-200 
-                                   p-1 rounded"
-                        onClick={async () => {
-                          try {
-                            const textToCopy = message.parts
-                              ? message.parts
-                                  .filter((part) => part.type === "text")
-                                  .map((part) => part.text)
-                                  .join("\n")
-                              : message.content;
-                            
-                            await navigator.clipboard.writeText(textToCopy);
-                            setCopied(message.id);
-                            toast.success("Copied to clipboard");
-                            setTimeout(() => setCopied(null), 1500);
-                          } catch (error) {
-                            console.error("Failed to copy text:", error);
-                            toast.error("Failed to copy to clipboard");
-                          }
-                        }}
-                        aria-label="Copy response"
-                        title="Copy to clipboard"
-                      >
-                        <Copy
-                          className={`transition-colors duration-200 ${
-                            copied === message.id ? "text-green-400" : "text-gray-400 hover:text-gray-200"
-                          }`}
-                          size={14}
-                        />
-                      </button>
-                    )}
-                    {/* Check if message has parts (reasoning) or just content */}
-       {message.parts ? (
-  <div className="pb-8">
-    {message.parts.map((part, partIndex) => (
-      <div key={partIndex} className="w-full max-w-full overflow-x-auto break-words">
-        {part.type === "text" && (
-          <MemoizedMarkdown
-            content={part.text}
-            id={`${message.id}-text-${partIndex}`}
-            size="default"
-          />
-        )}
-
-        {part.type === "file" && part.mimeType?.startsWith("image/") && (
-          <div className="my-4 w-full max-w-full flex justify-center">
-            <Image
-              src={`data:${part.mimeType};base64,${part.data}`}
-              alt="Generated image"
-              className="w-full max-w-[100%] h-auto rounded-lg shadow-lg"
-              loading="lazy"
-              width={100}
-              height={100}
+            <MessageWrapper 
+              key={message.id} 
+              message={message} 
+              index={index} 
+              isLastMessage={index === messages.length - 1} 
+              isLoading={isLoading} 
             />
-          </div>
-        )}
-
-        {part.type === "reasoning" && (
-          <details className="mb-4 rounded-lg bg-gray-800/50 p-3 w-full max-w-full">
-            <summary className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white">
-              View Reasoning
-            </summary>
-            <div className="mt-2 text-sm text-gray-400 overflow-x-auto">
-              <pre className="whitespace-pre-wrap break-words">
-                {part.details?.map((detail, i) => (
-                  <div key={i}>
-                    {detail.type === "text" ? detail.text : "<redacted>"}
-                  </div>
-                ))}
-              </pre>
-            </div>
-          </details>
-        )}
-      </div>
-    ))}
-  </div>
-) : (
-  <div className="w-full max-w-full overflow-x-auto break-words pb-8">
-    <MemoizedMarkdown
-      content={message.content}
-      id={message.id}
-      size="default"
-    />
-  </div>
-)}
-
-                  </div>
-                </div>
-              )}
-            </div>
           ))}
 
           {/* Show loading dots only when starting a new conversation */}
@@ -280,7 +382,7 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
           )}
         </div>
         {/* Error Component */}
-        <Error error={error ? error.message : null} reload={reload} />
+        <Error error={error?.message} reload={reload} />
 
         {/* Scroll to Bottom Button */}
         {showScrollButton && (
@@ -327,11 +429,15 @@ export default function Chat(props: { threadId: Id<"threads"> }) {
         error={error ? error.message : null}
         reload={reload}
         onModelSelect={setSelectedModel}
-        onDropdownToggle={() => setIsDropdownOpen(!isDropdownOpen)}
-        onDropdownClose={() => setIsDropdownOpen(false)}
+        onDropdownToggle={onDropdownToggle}
+        onDropdownClose={onDropdownClose}
         attachments={attachments}
         setAttachments={setAttachments}
+        webSearch={webSearch}
+        setWebSearch={setWebSearch}
       />
     </div>
   );
 }
+
+export default memo(Chat);

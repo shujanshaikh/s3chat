@@ -3,11 +3,9 @@ import { useQuery } from "convex/react";
 import { NavLink, Outlet, useParams } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
 import { UserMenu } from "./auth/UserMenu";
-import { ChevronLeft, ChevronRight, Menu, X, Search } from "lucide-react";
+import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import { useMessageSummary } from "../hooks/useMessageSummary";
-import type { Id } from "../../../convex/_generated/dataModel";
 import { NewChatButton } from "./NewChatButton";
-
 
 export default function ChatLayout() {
   const threads = useQuery(api.threads.getThreads);
@@ -16,13 +14,10 @@ export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const processedThreadsRef = useRef(new Set<string>());
-  const { threadId: currentThreadId } = useParams<{
-    threadId: Id<"threads">;
-  }>();
- 
-  
+  const { threadId } = useParams();
+
   const messageSummary = useQuery(api.messages.getMessages, {
-    threadId: currentThreadId!,
+    threadId: threadId!,
   });
 
   const { complete, isLoading } = useMessageSummary();
@@ -87,26 +82,21 @@ export default function ChatLayout() {
   };
 
   useEffect(() => {
-    if (
-      !currentThreadId ||
-      !messageSummary ||
-      !messageSummary.length ||
-      isLoading
-    ) {
+    if (!threadId || !messageSummary || !messageSummary.length || isLoading) {
       return;
     }
 
-    const currentThread = threads?.find((t) => t._id === currentThreadId);
+    const currentThread = threads?.find((t) => t.threadId === threadId);
     if (
       currentThread &&
       (!currentThread.title || currentThread.title === "New Chat") &&
-      !processedThreadsRef.current.has(currentThreadId) &&
+      !processedThreadsRef.current.has(threadId) &&
       messageSummary.length > 0
     ) {
       const firstUserMessage = messageSummary.find((m) => m.role === "user");
 
       if (firstUserMessage) {
-        processedThreadsRef.current.add(currentThreadId);
+        processedThreadsRef.current.add(threadId);
 
         const formatMessage = messageSummary.map((m) => ({
           role: m.role,
@@ -123,14 +113,14 @@ export default function ChatLayout() {
 
         complete(conversationSummary, {
           body: {
-            threadId: currentThreadId,
+            threadId: threadId,
             messageId: lastMessageId,
             isTitle: true,
           },
         });
       }
     }
-  }, [currentThreadId, messageSummary?.length, threads?.length]);
+  }, [threadId, messageSummary?.length, threads?.length, complete, isLoading]);
 
   // Clean up processed threads when component unmounts or thread changes
   useEffect(() => {
@@ -190,13 +180,13 @@ export default function ChatLayout() {
         <div className="space-y-1">
           {threads.map((thread) => (
             <NavLink
-              key={thread._id}
-              to={`/chat/${thread._id}`}
+              key={thread.threadId}
+              to={`/chat/${thread.threadId}`}
               onClick={() => isMobile && setSidebarOpen(false)}
               className={({ isActive }) =>
-                `block rounded-md px-3 py-2 text-sm transition-colors hover:bg-pink-700/50 touch-manipulation ${
+                `block rounded-md px-3 py-2 text-sm transition-colors hover:bg-indigo-700/50 touch-manipulation ${
                   isActive
-                    ? "bg-pink-500/20 text-white"
+                    ? "bg-indigo-500/20 text-white"
                     : "text-gray-300 hover:text-white"
                 }`
               }
@@ -210,7 +200,7 @@ export default function ChatLayout() {
   };
 
   return (
-    <div className="flex h-dvh flex-row-reverse relative">
+    <div className="flex h-dvh relative">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
@@ -224,8 +214,8 @@ export default function ChatLayout() {
         <div
           id="mobile-sidebar"
           className={`
-  ${isMobile ? "fixed" : "relative"} 
-  flex flex-col bg-gradient-to-b bg-pink-800/15 backdrop-blur-md border-l border-pink-900/30 shadow-2xl w-75 min-w-[18rem] transition-all duration-300 no-scrollbar
+  ${isMobile ? "fixed bg-black/40" : "relative bg-gray-800/70"} 
+  flex flex-col backdrop-blur-md shadow-2xl w-75 min-w-[18rem] transition-all duration-300 no-scrollbar
   ${isMobile ? "inset-y-0 right-0 z-999 pt-16" : ""}
   ${isMobile ? (sidebarOpen ? "translate-x-0" : "translate-x-full") : ""} 
   ${isMobile ? "max-w-[80vw]" : ""}
@@ -234,18 +224,18 @@ export default function ChatLayout() {
           {/* Desktop Close Button */}
           {!isMobile && (
             <button
-              className="absolute top-4 left-4 z-10 bg-pink-900/10 rounded-full p-1.5 hover:bg-pink-700 transition-colors touch-manipulation"
+              className="absolute top-4 left-4 z-10 bg-indigo-900/10 rounded-full p-1.5 hover:bg-indigo-700 transition-colors touch-manipulation"
               onClick={handleSidebarToggle}
               title="Collapse sidebar (Ctrl+B)"
             >
-              <ChevronRight size={16} className="text-gray-400" />
+              <ChevronLeft size={16} className="text-gray-400" />
             </button>
           )}
 
           {/* Mobile Close Button */}
           {isMobile && (
             <button
-              className="absolute top-2 left-3 z-10 bg-pink-900 rounded-full p-1.5 hover:bg-pink-700 transition-colors touch-manipulation"
+              className="absolute top-2 left-3 z-10 bg-indigo-900 rounded-full p-1.5 hover:bg-indigo-700 transition-colors touch-manipulation"
               onClick={handleSidebarToggle}
               title="Close sidebar"
             >
@@ -260,9 +250,8 @@ export default function ChatLayout() {
                 style={{
                   fontFamily: "'Montserrat', sans-serif",
                   fontWeight: 700,
-                  color: "#fff",
                 }}
-                className="mb-4 text-xl tracking-tight text-center"
+                className="mb-4 text-2xl tracking-tight text-center text-gradient-to-r from-indigo-900 to-indigo-300"
               >
                 S3.chat
               </h1>
@@ -284,7 +273,7 @@ export default function ChatLayout() {
                 placeholder="Search your threads..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-800/30 backdrop-blur-sm border border-gray-700/40 rounded-md pl-10 pr-4 py-2 text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-pink-500/50 focus:border-pink-500/50 transition-colors"
+                className="w-full rounded-md pl-10 pr-4 py-2 text-sm text-gray-300 focus:outline-none focus:ring-1 "
               />
             </div>
 
@@ -296,14 +285,14 @@ export default function ChatLayout() {
               {renderThreadGroup("Older", threadGroups.older)}
 
               {threads?.length === 0 && (
-                <div className="text-sm text-pink-300 text-center py-8">
+                <div className="text-sm text-indigo-300 text-center py-8">
                   No chats yet
                 </div>
               )}
             </nav>
 
             {/* User Menu */}
-            <div className="mt-4 pt-4 border-t border-gray-700/50">
+            <div className="mt-4 pt-4 border-t border-zinc-700/50">
               <UserMenu />
             </div>
           </div>
@@ -313,22 +302,22 @@ export default function ChatLayout() {
       {/* Desktop Floating Expand Button */}
       {!isMobile && collapsed && (
         <button
-          className="fixed top-6 right-6 z-30 bg-gradient-to-b from-pink-500/10 to-pink-500/30 backdrop-blur-sm rounded-full p-2.5 shadow-lg hover:bg-pink-700/80 transition-colors touch-manipulation"
+          className="fixed top-6 left-6 z-30 bg-gradient-to-b from-indigo-500/10 to-indigo-500/30 backdrop-blur-sm rounded-full p-2.5 shadow-lg hover:bg-indigo-700/80 transition-colors touch-manipulation"
           onClick={() => setCollapsed(false)}
           title="Expand sidebar (Ctrl+B)"
         >
-          <ChevronLeft size={20} className="text-pink-300" />
+          <ChevronLeft size={10} className="text-indigo-300" />
         </button>
       )}
 
       {/* Mobile Floating Menu Button */}
       {isMobile && !sidebarOpen && (
         <button
-          className="fixed top-4 right-4 z-30 bg-gradient-to-b from-pink-500/20 to-pink-500/40 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-pink-700/80 transition-colors touch-manipulation"
+          className="fixed top-4 right-4 z-30 bg-gradient-to-b from-indigo-500/20 to-indigo-500/40 backdrop-blur-sm rounded-full p-3 shadow-lg hover:bg-indigo-700/80 transition-colors touch-manipulation"
           onClick={() => setSidebarOpen(true)}
           title="Open sidebar"
         >
-          <Menu size={20} className="text-pink-300" />
+          <Menu size={20} className="text-indigo-300" />
         </button>
       )}
 

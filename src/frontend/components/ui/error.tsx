@@ -2,7 +2,7 @@ import { AlertCircle, RotateCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface ErrorProps {
-  error: string | null
+  error: any
   reload: () => void
 }
 
@@ -21,7 +21,7 @@ export default function Error({ error, reload }: ErrorProps) {
         >
           <div className="flex items-center gap-2 flex-1">
             <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-            <span className="text-sm text-red-700 font-medium">An error occurred. Please try again.</span>
+            <span className="text-sm text-red-700 font-medium">{error}</span>
           </div>
 
           <motion.button

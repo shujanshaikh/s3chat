@@ -44,8 +44,8 @@ export const models: ModelInfo[] = [
     description: "Latest GPT-4 with multimodal capabilities",
   },
   {
-    id: "claude-3.5-sonnet",
-    name: "Claude 3.5 Sonnet",
+    id: "claude-4-sonnet",
+    name: "Claude 4 Sonnet",
     provider: "Anthropic",
     category: "Premium",
     description: "Latest Claude with excellent reasoning and coding",
@@ -58,12 +58,13 @@ export const models: ModelInfo[] = [
     description: "Latest Claude with excellent reasoning and coding",
   },
   {
-    id: "claude-4-sonnet",
-    name: "Claude 4 Sonnet",
+    id: "claude-3.5-sonnet",
+    name: "Claude 3.5 Sonnet",
     provider: "Anthropic",
     category: "Premium",
     description: "Latest Claude with excellent reasoning and coding",
   },
+  
   {
     id: "gemini-2.5-pro",
     name: "Gemini 2.5 Pro",
@@ -75,6 +76,27 @@ export const models: ModelInfo[] = [
     id: "gemini-2.0-flash-lite",
     name: "Gemini 2.0 Flash Lite",
     provider: "Google",
+    category: "Premium",
+    description: "High-performance open-source model",
+  },
+  {
+    id: "gemini-1.5-flash-latest",
+    name: "Gemini 1.5 Flash Latest",
+    provider: "Google",
+    category: "Premium",
+    description: "High-performance open-source model",
+  },
+  {
+    id: "gemini-1.5-pro-latest",
+    name: "Gemini 1.5 Pro Latest",
+    provider: "Google",
+    category: "Premium",
+    description: "High-performance open-source model",
+  },
+  {
+    id: "qwen-qwq-32b",
+    name: "Qwen QWQ 32B",
+    provider: "Groq",
     category: "Premium",
     description: "High-performance open-source model",
   },
@@ -133,6 +155,14 @@ export const getModel = (modelName: string, apiKeyOverride?: string) => {
       return createGoogleGenerativeAI({
         apiKey: getApiKey("Google", apiKeyOverride),
       })("gemini-2.5-flash-preview-04-17");
+    case "gemini-1.5-flash-latest":
+      return createGoogleGenerativeAI({
+        apiKey : getApiKey("Google", apiKeyOverride)
+      })("gemini-1.5-flash-latest")
+    case "gemini-1.5-pro-latest":
+      return createGoogleGenerativeAI({
+        apiKey : getApiKey("Google", apiKeyOverride)
+      })("gemini-1.5-pro-latest")
     case "gemini-2.5-pro":
       return createGoogleGenerativeAI({
         apiKey: getApiKey("Google", apiKeyOverride),
@@ -147,13 +177,17 @@ export const getModel = (modelName: string, apiKeyOverride?: string) => {
     case "meta-llama/llama-4-scout-17b-16e-instruct":
       return createGroq({
         apiKey: getApiKey("Groq", apiKeyOverride),
-      })("meta-llama/llama-4-scout-17b-16e-instruct");
+      })("meta-llama/llama-4-scout-17b-16e-instruct",);
+    case "qwen-qwq-32b":
+      return createGroq({
+        apiKey: getApiKey("Groq", apiKeyOverride),
+      })("qwen-qwq-32b");
     case "deepseek-r1-distill-llama-70b":
       return createGroq({
         apiKey: getApiKey("Groq", apiKeyOverride),
       })("deepseek-r1-distill-llama-70b");
+        
     
-    // Default to Gemini 1.5 Flash
     default:
       return google(DEFAULT_MODEL);
   }

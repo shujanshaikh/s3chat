@@ -5,7 +5,7 @@ import RedirectToNewThread from "../components/RedirectToNewThread";
 
 export default function ChatPage() {
   // Get the threadId from the URL
-  const { threadId } = useParams<{ threadId: Id<"threads"> }>();
+  const { threadId } = useParams<{ threadId: string }>();
 
   // This is a safeguard in case the URL is somehow invalid
   if (!threadId) {

@@ -1,6 +1,6 @@
 import { UserButton, SignOutButton } from "@clerk/nextjs";
 import { LogOut, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export function UserMenu() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export function UserMenu() {
       <div className="h-6 w-px bg-none"></div>
 
       {/* Sign out button */}
-      <SignOutButton>
+      <SignOutButton redirectUrl="/">
         <button
           className="flex items-center justify-items-stretch gap-1.5 px-6 py-1.5 text-sm font-medium text-white bg-none rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-orange-900/30 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 focus:ring-offset-orange-900"
           aria-label="Sign out"

@@ -1,41 +1,39 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
 
 export const createUsage = mutation({
   args: {
-    userId: v.id("users"),
-    model: v.string(),
-    totalTokens: v.number(),
+    clerkId: v.string(),
+    messagesCount: v.number(),
   },
   handler: async (ctx, args) => {
     const usage = await ctx.db
       .query("usage")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .first();
     if (!usage) {
       await ctx.db.insert("usage", {
-        userId: args.userId,
-        model: args.model,
-        totalTokens: args.totalTokens,
+        clerkId: args.clerkId,
+        messagesCount: args.messagesCount,
         createdAt: Date.now(),
       });
     } else {
       await ctx.db.patch(usage._id, {
-        totalTokens: usage.totalTokens + args.totalTokens,
+        messagesCount: usage.messagesCount + args.messagesCount,
       });
     }
   },
 });
 
+
 export const getUsage = query({
   args: {
-    userId: v.id("users"),
+    clerkId: v.string(),
   },
   handler: async (ctx, args) => {
     const usage = await ctx.db
       .query("usage")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId! as Id<"users">))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .first();
     return usage;
   },

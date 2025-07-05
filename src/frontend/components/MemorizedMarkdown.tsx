@@ -14,7 +14,7 @@ import rehypeKatex from "rehype-katex";
 import ShikiHighlighter from "react-shiki";
 import { marked } from "marked";
 import ReactMarkdown from "react-markdown";
-import { toast, Toaster } from "sonner";
+
 
 type MarkDownSize = "small" | "default";
 
@@ -39,7 +39,7 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
           <div className="min-w-[400px] sm:min-w-full">
             <ShikiHighlighter
               language={lang}
-              theme="plastic"
+              theme="github-dark"
               className="text-[11px] sm:text-sm md:text-base font-mono block !bg-transparent min-w-full px-3 sm:px-4 lg:px-5 border-0 outline-0"
               showLanguage={false}
             >
@@ -53,8 +53,8 @@ function CodeBlock({ children, className, ...props }: CodeComponentsProps) {
 
   const inlineCodeClasses =
     size === "small"
-      ? "mx-0.5 overflow-auto rounded px-1 py-0.5 bg-pink-900/15 font-mono text-[11px] break-words"
-      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-pink-900/10 font-mono text-xs sm:text-sm lg:text-base break-words";
+      ? "mx-0.5 overflow-auto rounded px-1 py-0.5 bg-indigo-900/10 font-mono text-[11px] break-words"
+      : "mx-0.5 overflow-auto rounded-md px-1 sm:px-1.5 xl:px-2 py-0.5 sm:py-1 bg-indigo-900/10 font-mono text-xs sm:text-sm lg:text-base break-words";
 
   return (
     <code className={inlineCodeClasses} {...props}>
@@ -77,15 +77,13 @@ function CopyClipBoard({
     try {
       await navigator.clipboard.writeText(codeString);
       setCopy(true);
-      toast.success("Copied to clipboard");
-      setTimeout(() => setCopy(false), 2000);
     } catch (error) {
       console.error("Unable to copy the code", error);
     }
   };
 
   return (
-    <div className="flex justify-between items-center px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 bg-pink-500/10 text-foreground rounded-t-md border-b border-pink-500/10">
+    <div className="flex justify-between items-center px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-0 bg-indigo-400/30 text-foreground rounded-t-md border-b border-indigo-500/10">
       <span className="text-[11px] sm:text-sm lg:text-base font-mono truncate flex-1 mr-2 min-w-0">
         {lang}
       </span>
@@ -95,11 +93,10 @@ function CopyClipBoard({
         aria-label={copy ? "Copied!" : "Copy code"}
       >
         {copy ? (
-          <Check className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+          <Check className="w-2 h-2 sm:w-3 sm:h-3 lg:w-4 lg:h-4" />
         ) : (
-          <Copy className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+          <Copy className="w-2 h-2 sm:w-3 sm:h-3 lg:w-4 lg:h-4" />
         )}
-        <Toaster position="bottom-center" richColors={false} duration={2000} />
       </button>
     </div>
   );

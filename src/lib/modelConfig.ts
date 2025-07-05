@@ -9,7 +9,9 @@ export const AI_MODELS = [
     "GPT-4.1",
     "Llama 4 Scout 17B",
     "DeepSeek R1 Distill Llama 70B",
-
+    "Gemini 1.5 Flash Latest",
+    "Gemini 1.5 Pro Latest",
+    "Qwen QWQ 32B",
   ] as const;
   
   export type AIModel = (typeof AI_MODELS)[number];
@@ -71,7 +73,21 @@ export const AI_MODELS = [
       provider: "groq",
       headerKey: "x-groq-api-key",
     },
-
+    "Gemini 1.5 Flash Latest": {
+      modelId: "gemini-1.5-flash-latest",
+      provider: "google",
+      headerKey: "x-google-api-key",
+    },
+    "Gemini 1.5 Pro Latest": {
+      modelId: "gemini-1.5-pro-latest",
+      provider: "google",
+      headerKey: "x-google-api-key",  
+    },
+    "Qwen QWQ 32B": {
+      modelId: "qwen-qwq-32b",
+      provider: "groq",
+      headerKey: "x-groq-api-key",
+    },
   };
   
   export const MODEL_ID_TO_CONFIG_KEY: Record<string, AIModel> = {
@@ -85,6 +101,9 @@ export const AI_MODELS = [
     "gpt-4.1": "GPT-4.1",
     "meta-llama/llama-4-scout-17b-16e-instruct" : "Llama 4 Scout 17B",
     "deepseek-r1-distill-llama-70b": "DeepSeek R1 Distill Llama 70B",
+    "gemini-1.5-flash-latest": "Gemini 1.5 Flash Latest",
+    "gemini-1.5-pro-latest": "Gemini 1.5 Pro Latest",
+    "qwen-qwq-32b": "Qwen QWQ 32B",
   };
   
 

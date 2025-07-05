@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/frontend/components/ui/theme-provider';
 import ConvexClientProvider from '../frontend/components/ConvexProviderWithClerk';
 import { ClerkProvider } from '@clerk/nextjs';
+import { ReactScan } from '@/frontend/components/ReactScanCoponent';
 
 
 const geistSans = Geist({
@@ -31,7 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+       <ReactScan />
       <body
+       
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider

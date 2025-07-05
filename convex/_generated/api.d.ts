@@ -15,6 +15,8 @@ import type {
 } from "convex/server";
 import type * as attachments from "../attachments.js";
 import type * as auth from "../auth.js";
+import type * as http from "../http.js";
+import type * as lib_internal from "../lib/internal.js";
 import type * as messages from "../messages.js";
 import type * as messagesummary from "../messagesummary.js";
 import type * as threads from "../threads.js";
@@ -32,6 +34,8 @@ import type * as user from "../user.js";
 declare const fullApi: ApiFromModules<{
   attachments: typeof attachments;
   auth: typeof auth;
+  http: typeof http;
+  "lib/internal": typeof lib_internal;
   messages: typeof messages;
   messagesummary: typeof messagesummary;
   threads: typeof threads;

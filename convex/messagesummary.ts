@@ -3,7 +3,7 @@ import { mutation } from "./_generated/server";
 
 export const createMessageSummary = mutation({
     args: {
-      threadId: v.id("threads"),
+      threadId: v.string(),
       title: v.string(),
     },
     handler: async (ctx, args) => {
@@ -11,11 +11,14 @@ export const createMessageSummary = mutation({
       if(user == null) {
         throw new Error("Not Authorized");
       }
-      const messageSummary = await ctx.db.insert("messages_summary", {
+      const messageSummary = await ctx.db.query("messages_summary").withIndex("by_thread", (q) => q.eq("threadId", args.threadId)).first();
+      if(!messageSummary) {
+      return await ctx.db.insert("messages_summary", {
         threadId: args.threadId,
         title: args.title,
         createdAt: Date.now(),
       })
-      return messageSummary;
     }
+    return messageSummary;
+  }
   })

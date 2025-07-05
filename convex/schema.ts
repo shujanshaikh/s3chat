@@ -6,7 +6,7 @@ export default defineSchema({
     clerkId : v.string(),
     name : v.string(),
     email : v.string(),
-    plan : v.union(v.literal("free"), v.literal("pro")),
+    plan : v.string(),
     createdAt : v.number(),
   }).index("by_clerkId", ["clerkId"]),
 
@@ -14,13 +14,14 @@ export default defineSchema({
    threads : defineTable({
     userId : v.string(),
     title : v.string(),
+    threadId : v.string(),
     createdAt : v.number(),
     updatedAt : v.number(),
    }).index("by_userId", ["userId"]),
 
 
    messages : defineTable({
-    threadId : v.id("threads"),
+    threadId : v.string(),
     role : v.union(v.literal("user"), v.literal("assistant") , v.literal("system")),
     model : v.string(),
     content : v.string(),
@@ -31,7 +32,7 @@ export default defineSchema({
 
 
    messages_summary : defineTable({
-    threadId : v.id("threads"),
+    threadId : v.string(),
     messageId : v.optional(v.id("messages")),
     title : v.string(),
     createdAt : v.number(),
@@ -39,15 +40,14 @@ export default defineSchema({
 
 
   usage : defineTable({
-    userId : v.id("users"),
-    model : v.string(),
-    totalTokens : v.number(),
+    clerkId : v.string(),
+    messagesCount : v.number(),
     createdAt : v.number(),
-  }).index("by_userId", ["userId"]),
+  }).index("by_clerkId", ["clerkId"]),
 
 
   attachments : defineTable({
-    messageId : v.id("messages"),
+    messageId : v.string(),
     name : v.string(),
     url : v.string(),
     contentType : v.string(),

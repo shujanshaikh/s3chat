@@ -3,7 +3,7 @@ import { v } from "convex/values";
 
 export const createMessage = mutation({
   args: {
-    threadId: v.id("threads"),
+    threadId: v.string(),
     role: v.union(
       v.literal("user"),
       v.literal("assistant"),
@@ -17,7 +17,7 @@ export const createMessage = mutation({
     if (user == null) {
       throw new Error("Not Authorized");
     }
-    const thread = await ctx.db.get(args.threadId);
+    const thread = await ctx.db.query("threads").withIndex("by_userId", (q) => q.eq("userId", user.subject!)).first();
     if (!thread || thread.userId !== user.subject!) {
       throw new Error("No Thread Found");
     }
@@ -29,24 +29,15 @@ export const createMessage = mutation({
       content: args.content,
       createdAt: Date.now(),
     });
-    await ctx.db.patch(args.threadId, { updatedAt: Date.now() });
+    await ctx.db.patch(thread._id, { updatedAt: Date.now() });
     return message;
   },
 });
 
 export const getMessages = query({
-  args: { threadId: v.id("threads") },
+  args: { threadId: v.string() },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-    if (user == null) {
-      throw new Error("Not Authorized");
-    }
-
-    const thread = await ctx.db.get(args.threadId);
-    if (!thread || thread.userId !== user.subject!) {
-      throw new Error("No Thread Found");
-    }
-
+   
     return await ctx.db
       .query("messages")
       .withIndex("by_thread_created_at", (q) => q.eq("threadId", args.threadId))
@@ -55,18 +46,59 @@ export const getMessages = query({
 });
 
 export const getMessageById = query({
-  args: { messageId: v.id("messages") },
+  args: { messageId: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.auth.getUserIdentity();
     if (user == null) {
       throw new Error("Not Authorized");
     }
 
-    const message = await ctx.db.get(args.messageId);
+    const message = await ctx.db.query("messages").withIndex("by_thread", (q) => q.eq("threadId", args.messageId)).first();
     if (!message || message.threadId !== user.subject!) {
       throw new Error("No Message Found");
     }
     console.log("message", message._id);
     return message;
+  },
+});
+
+
+
+export const getMessageCountByUserId = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.auth.getUserIdentity();
+    if (user == null) {
+      throw new Error("Not Authorized");
+    }
+    
+    // Calculate 28 days ago timestamp
+    const twentyEightDaysAgo = Date.now() - 28 * 24 * 60 * 60 * 1000;
+    
+    // Get all user messages from the last 28 days
+    const userMessages = await ctx.db
+      .query("messages")
+      .withIndex("by_thread_created_at")
+      .filter((q) => 
+        q.and(
+          q.gte(q.field("createdAt"), twentyEightDaysAgo),
+          q.eq(q.field("role"), "user")
+        )
+      )
+      .collect();
+    
+    // Filter messages that belong to user's threads
+    const userThreads = await ctx.db
+      .query("threads")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    
+    const userThreadIds = new Set(userThreads.map(thread => thread.threadId));
+    
+    const filteredMessages = userMessages.filter(message => 
+      userThreadIds.has(message.threadId)
+    );
+    
+    return filteredMessages.length;
   },
 });

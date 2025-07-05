@@ -12,14 +12,18 @@ export default function RedirectToThread() {
     async function go() {
       if (threads === undefined) return;
       if (threads.length > 0) {
-        navigate(`/chat/${threads[0]._id}`);
+        navigate(`/chat/${threads[0].threadId}`);
       } else {
-        const threadId = await createThread({ title: "New Chat" });
+        const uuid = crypto.randomUUID();
+        const threadId = await createThread({ 
+          title: "New Chat",
+          threadId: uuid 
+        });
         navigate(`/chat/${threadId}`);
       }
     }
     go();
-  }, [threads]);
+  }, [threads, navigate, createThread]);
 
   return null;
 }

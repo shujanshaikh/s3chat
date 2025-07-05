@@ -1,5 +1,4 @@
 import { useCompletion } from "@ai-sdk/react";
-import { Id } from "../../../convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { NextResponse } from "next/server";
@@ -7,8 +6,8 @@ import { NextResponse } from "next/server";
 interface MessageSummary {
   title: string;
   isTitle?: boolean;
-  threadId: Id<"threads">;
-  messageId: Id<"messages">;
+  threadId: string;
+  messageId: string;
 }
 
 export const useMessageSummary = () => {
@@ -25,17 +24,17 @@ export const useMessageSummary = () => {
           const { title, isTitle, threadId } = payload;
           if (isTitle) {
             await updateThread({
-              threadId,
+              threadId : threadId,
               newTitle: title,
             });
             await createMessageSummary({
-              threadId,
+              threadId : threadId,
               title,
             });
           } else {
             await createMessageSummary({
               title,
-              threadId,
+              threadId : threadId,
             });
           }
         }

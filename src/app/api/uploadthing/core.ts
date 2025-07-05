@@ -1,8 +1,8 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import { currentUser } from "@clerk/nextjs/server";
-const f = createUploadthing();
 
+const f = createUploadthing();
 
 export const getUserAuth = async () => {
  try {
@@ -15,6 +15,7 @@ export const getUserAuth = async () => {
     throw new UploadThingError("Unauthorized");
  }
 };
+
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
@@ -39,19 +40,17 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
 
-
       console.log("Upload complete for userId:", metadata.userId);
       console.log("file", file);
-      console.log("metadata", metadata);
-
       console.log("file url", file.ufsUrl);
-     
-    
-    
-
       
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return { fileUrl: file.ufsUrl, fileName: file.name, contentType: file.type };
+      // Return file data - the client will handle creating the attachment in Convex
+      return { 
+        fileUrl: file.ufsUrl, 
+        fileName: file.name, 
+        contentType: file.type,
+        uploadedBy: metadata.userId 
+      };
     }),
 } satisfies FileRouter;
 
