@@ -326,7 +326,7 @@ function MessageBox({
                   ref={inputRef}
                   value={input}
                   onChange={onInputChange}
-                  placeholder="Type your message or paste images ctrl + v..."
+                  placeholder="Type your message here..."
                   disabled={inputDisabled}
                   rows={1}
                   className="w-full resize-none bg-transparent text-zinc-200 placeholder-zinc-400 
@@ -434,7 +434,7 @@ function MessageBox({
                   <button
                     type="button"
                     onClick={handleAttachmentClick}
-                    className="text-zinc-400 hover:text-zinc-300 transition-colors duration-200 p-1"
+                    className="text-zinc-400 hover:text-zinc-300 transition-colors duration-200 p-1 border border-zinc-700/40 rounded-3xl px-2 py-2"
                     aria-label="Add attachment"
                     disabled={isUploading}
                   >
@@ -444,7 +444,7 @@ function MessageBox({
                   <button
                     type="button"
                     onClick={handleWebSearchToggle}
-                    className={`transition-colors duration-200 p-1 ${
+                    className={`transition-colors duration-200 p-1 border border-zinc-700/40 rounded-3xl px-2 py-2 ${
                       webSearch
                         ? "text-indigo-400 hover:text-indigo-300"
                         : "text-zinc-400 hover:text-zinc-300"
@@ -452,11 +452,7 @@ function MessageBox({
                     aria-label="Web Search"
                   >
                     <Globe className="h-4 w-4" />
-                    <span
-                      className={`text-xs ${webSearch ? "text-indigo-400" : "text-zinc-400"}`}
-                    >
-                      Search
-                    </span>
+              
                   </button>
                 </div>
 
@@ -533,7 +529,7 @@ function MessageBox({
                   ref={inputRef}
                   value={input}
                   onChange={onInputChange}
-                  placeholder="Type your message or paste images ctrl + v..."
+                  placeholder="Type your message here..."
                   disabled={inputDisabled}
                   rows={1}
                   className="w-full resize-none bg-transparent text-zinc-200 placeholder-zinc-400 
