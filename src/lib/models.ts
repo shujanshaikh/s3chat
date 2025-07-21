@@ -154,7 +154,7 @@ export const getModel = (modelName: string, apiKeyOverride?: string) => {
     case "gemini-2.5-flash":
       return createGoogleGenerativeAI({
         apiKey: getApiKey("Google", apiKeyOverride),
-      })("gemini-2.5-flash-preview-04-17");
+      })("gemini-2.5-flash");
     case "gemini-1.5-flash-latest":
       return createGoogleGenerativeAI({
         apiKey : getApiKey("Google", apiKeyOverride)

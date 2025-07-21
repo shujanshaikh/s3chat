@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LanguageModelV1, Message, smoothStream, streamText } from "ai";
+import { LanguageModelV1, smoothStream, streamText, UIMessage } from "ai";
 import { systemprompt } from "@/lib/systemprompt";
 import { DEFAULT_MODEL, getModel } from "@/lib/models";
 import { auth } from "@clerk/nextjs/server";
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       clerkId: session.userId!,
     }); 
 
-    const { messages, model, webSearch: isWebSearchEnabled } : { messages: Message[], model: string, webSearch: boolean } = await req.json();
+    const { messages, model, webSearch: isWebSearchEnabled } : { messages: UIMessage[], model: string, webSearch: boolean } = await req.json();
     
     const webSearchEnabled = Boolean(isWebSearchEnabled);
     
@@ -55,12 +55,12 @@ export async function POST(req: NextRequest) {
       ) as LanguageModelV1,
       messages,
       experimental_transform: [smoothStream({ chunking: "word" })],
-      maxSteps: 3,
+      maxSteps: 5,
+      toolCallStreaming: true,
       system: systemprompt,
       tools: webSearchEnabled ? {
         webSearch,
       } : undefined,
-      toolCallStreaming: true,
       abortSignal: req.signal,
       onFinish: async (result) => {
         if(!skipUsageTracking) {
@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
         }
       }
     });
+    result.consumeStream();
 
     return result.toDataStreamResponse({
       sendReasoning: true,
