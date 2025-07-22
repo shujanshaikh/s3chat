@@ -12,20 +12,23 @@ export default defineSchema({
 
 
    threads : defineTable({
-    userId : v.string(),
+    clerkId : v.optional(v.string()),
+    userId : v.optional(v.string()),
     title : v.string(),
     threadId : v.string(),
     createdAt : v.number(),
     updatedAt : v.number(),
-   }).index("by_userId", ["userId"]),
+   }).index("by_clerkId", ["clerkId"]).index("by_threadId", ["threadId"]),
 
 
    messages : defineTable({
+    assistantId : v.optional(v.string()),
     threadId : v.string(),
     role : v.union(v.literal("user"), v.literal("assistant") , v.literal("system")),
     model : v.string(),
     content : v.string(),
-    attachmentIds : v.optional(v.array(v.id("attachments"))),
+    parts : v.optional(v.any()),
+    attachments : v.optional(v.any()),
     createdAt : v.number(),
    }).index("by_thread", ["threadId"])
    .index("by_thread_created_at", ["threadId", "createdAt"]),

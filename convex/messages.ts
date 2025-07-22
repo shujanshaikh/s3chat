@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export const createMessage = mutation({
   args: {
+    assistantId: v.optional(v.string()),
     threadId: v.string(),
     role: v.union(
       v.literal("user"),
@@ -11,25 +12,23 @@ export const createMessage = mutation({
     ),
     content: v.string(),
     model: v.string(),
+    parts: v.optional(v.any()),
+    attachments: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.auth.getUserIdentity();
-    if (user == null) {
-      throw new Error("Not Authorized");
-    }
-    const thread = await ctx.db.query("threads").withIndex("by_userId", (q) => q.eq("userId", user.subject!)).first();
-    if (!thread || thread.userId !== user.subject!) {
-      throw new Error("No Thread Found");
-    }
+    
 
     const message = await ctx.db.insert("messages", {
+      assistantId: args.assistantId,
       role: args.role,
       threadId: args.threadId,
       model: args.model,
-      content: args.content,
+      content: args.content,  
+      parts: args.parts,
+      attachments: args.attachments,
       createdAt: Date.now(),
     });
-    await ctx.db.patch(thread._id, { updatedAt: Date.now() });
+   // await ctx.db.patch(args.threadId, { updatedAt: Date.now() });
     return message;
   },
 });
@@ -90,7 +89,7 @@ export const getMessageCountByUserId = query({
     // Filter messages that belong to user's threads
     const userThreads = await ctx.db
       .query("threads")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.userId))
       .collect();
     
     const userThreadIds = new Set(userThreads.map(thread => thread.threadId));

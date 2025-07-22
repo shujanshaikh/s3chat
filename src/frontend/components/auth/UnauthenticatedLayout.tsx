@@ -1,4 +1,4 @@
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
 
 export function UnauthenticatedLayout() {
   return (
@@ -30,24 +30,6 @@ export function UnauthenticatedLayout() {
                 Continue with Google
               </button>
             </SignInButton>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-zinc-700/40" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-zinc-800/60 px-2 text-zinc-500">or</span>
-              </div>
-            </div>
-            
-            <SignUpButton>
-              <button className="w-full px-4 py-3 bg-zinc-700/60 hover:bg-zinc-700/80 border border-zinc-600/40 hover:border-indigo-500/40 text-zinc-200 hover:text-white rounded-xl transition-all duration-200 flex items-center justify-center gap-3 font-medium hover:scale-[1.02]">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Create Account
-              </button>
-            </SignUpButton>
           </div>
           
           <p className="text-zinc-500 text-xs mt-6 leading-relaxed">

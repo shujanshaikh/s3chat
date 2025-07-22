@@ -1,16 +1,13 @@
-import { Authenticated, Unauthenticated } from "convex/react";
+import { ChatInit } from "../components/ChatInit";
+import ProtectedRoute from "../components/ProtectedRoute";
 import { UnauthenticatedLayout } from "../components/auth/UnauthenticatedLayout";
-import ChatPage from "./ChatPage";
 
 export default function Home() {
   return (
-    <>
-      <Authenticated>
-        <ChatPage />
-      </Authenticated>
-      <Unauthenticated>
-        <UnauthenticatedLayout />
-      </Unauthenticated>
-    </>
+    <ProtectedRoute
+      fallback={<UnauthenticatedLayout />}
+    >
+      <ChatInit />
+    </ProtectedRoute>
   );
 }

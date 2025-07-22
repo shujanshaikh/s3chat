@@ -12,7 +12,6 @@ interface Attachment {
 
 interface MessageBoxProps {
   input: string;
-  isLoading: boolean;
   currentModel?: { name: string; id: string };
   selectedModel: string;
   groupedModels: Record<
@@ -87,7 +86,6 @@ AttachmentPreview.displayName = "AttachmentPreview";
 
 function MessageBox({
   input,
-  isLoading,
   currentModel,
   selectedModel,
   onStop,
@@ -170,11 +168,11 @@ function MessageBox({
 
   // Memoize keyboard event handler
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey && !isLoading && input.trim()) {
+    if (e.key === "Enter" && !e.shiftKey && input.trim()) {
       e.preventDefault();
       onSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
     }
-  }, [input, isLoading, onSubmit]);
+  }, [input, onSubmit]);
 
   // Optimized autoResize function with better memoization
   const autoResize = useCallback(() => {
@@ -267,9 +265,9 @@ function MessageBox({
   }, [autoResize]);
 
   const hasAttachments = attachments.length > 0;
-  const canSubmit = input.trim() && !isLoading;
+  const canSubmit = input.trim();
   const isStreaming = status === "streaming" || status === "submitted";
-  const inputDisabled = isLoading || error !== null;
+  const inputDisabled = error !== null;
 
   const submitButtonClasses = useMemo(() => {
     const baseClasses = "rounded-full flex items-center justify-center transition-all duration-200";
@@ -353,7 +351,6 @@ function MessageBox({
                     <button
                       type="button"
                       onClick={onDropdownToggle}
-                      disabled={isLoading}
                       className="flex items-center gap-1 text-xs bg-zinc-800/60 hover:bg-zinc-700/70 border border-zinc-700/40 hover:border-indigo-500/40 rounded-lg px-2 py-1.5 text-zinc-200 hover:text-white transition-all duration-200 disabled:opacity-80"
                     >
                       <span className="truncate max-w-[80px] font-medium">
@@ -465,7 +462,7 @@ function MessageBox({
                       className="px-2 py-1 rounded-full bg-indigo-500/20 text-white text-xs
                                hover:bg-indigo-500/30 transition-all duration-200"
                       aria-label="Stop"
-                      disabled={!isLoading}
+                      disabled={status === "streaming"}
                     >
                       Stop
                     </button>
@@ -555,7 +552,6 @@ function MessageBox({
                     <button
                       type="button"
                       onClick={onDropdownToggle}
-                      disabled={isLoading}
                       className="flex items-center gap-1 text-sm hover:bg-zinc-700/70 px-2 py-2 text-white/70 hover:text-white rounded-3xl transition-all duration-200 disabled:opacity-80"
                     >
                       <span className="font-medium">
@@ -641,7 +637,6 @@ function MessageBox({
                       className="px-3 py-1.5 rounded-full bg-indigo-500/20 text-white text-sm
                                hover:bg-indigo-500/30 transition-all duration-200"
                       aria-label="Stop"
-                      disabled={!isLoading}
                     >
                       Stop
                     </button>
@@ -668,7 +663,6 @@ function MessageBox({
 export default memo(MessageBox, (prevProps, nextProps) => {
   return (
     prevProps.input === nextProps.input &&
-    prevProps.isLoading === nextProps.isLoading &&
     prevProps.selectedModel === nextProps.selectedModel &&
     prevProps.isDropdownOpen === nextProps.isDropdownOpen &&
     prevProps.status === nextProps.status &&
