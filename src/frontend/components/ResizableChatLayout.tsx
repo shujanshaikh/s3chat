@@ -214,13 +214,13 @@ export default function ResizableChatLayout({ threadId, initialMessages }: Resiz
               </div>
 
               <div className="relative mb-4">
-                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400/70" />
                 <input
                   type="text"
                   placeholder="Search your threads..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-md pl-10 pr-4 py-2 text-sm bg-gray-800/50 text-gray-300 border border-gray-600/30 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg pl-10 pr-4 py-2.5 text-sm bg-gray-800/30 text-gray-300 border-b border-gray-600/20 focus:outline-none focus:border-b-indigo-500 transition-colors"
                 />
               </div>
 

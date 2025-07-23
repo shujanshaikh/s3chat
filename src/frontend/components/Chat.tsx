@@ -107,7 +107,7 @@ export function Chat({ threadId , initialMessages }: { threadId: string, initial
       // Create attachments for this message
       if (attachments.length > 0) {
         try {
-          const attachmentPromises = attachments.map((attachment) =>
+           attachments.map((attachment) =>
             createAttachment({
               messageId: messages[messages.length - 1]?.id,
               fileUrl: attachment.url,
