@@ -1,8 +1,9 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI, google } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
-import { createGroq } from "@ai-sdk/groq";
+import { createGroq, groq } from "@ai-sdk/groq";
 import { getApiKey } from "./getApiKey";
+import { extractReasoningMiddleware, wrapLanguageModel } from "ai";
 
 
 // Model definitions
@@ -13,6 +14,8 @@ export interface ModelInfo {
   category: string;
   description: string;
 }
+
+
 
 export const models: ModelInfo[] = [
   {
@@ -94,8 +97,8 @@ export const models: ModelInfo[] = [
     description: "High-performance open-source model",
   },
   {
-    id: "qwen-qwq-32b",
-    name: "Qwen QWQ 32B",
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3 70B Versatile",
     provider: "Groq",
     category: "Premium",
     description: "High-performance open-source model",
@@ -178,14 +181,17 @@ export const getModel = (modelName: string, apiKeyOverride?: string) => {
       return createGroq({
         apiKey: getApiKey("Groq", apiKeyOverride),
       })("meta-llama/llama-4-scout-17b-16e-instruct",);
-    case "qwen-qwq-32b":
+    case "llama-3.3-70b-versatile":
       return createGroq({
         apiKey: getApiKey("Groq", apiKeyOverride),
-      })("qwen-qwq-32b");
+      })("llama-3.3-70b-versatile");
     case "deepseek-r1-distill-llama-70b":
-      return createGroq({
-        apiKey: getApiKey("Groq", apiKeyOverride),
-      })("deepseek-r1-distill-llama-70b");
+      return wrapLanguageModel({
+        model: createGroq({
+          apiKey: getApiKey("Groq", apiKeyOverride),
+        })("deepseek-r1-distill-llama-70b"),
+        middleware: extractReasoningMiddleware({ tagName: 'think' }),
+      });
         
     
     default:

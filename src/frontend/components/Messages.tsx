@@ -113,20 +113,44 @@ export const MessageContent = memo(
                       key={partIndex}
                       className="w-full max-w-full overflow-x-auto break-words"
                     >
-                      <details className="mb-4 rounded-lg p-3 w-full max-w-full">
-                        <summary className="cursor-pointer text-md font-sans text-indigo-100/90  ">
-                          Reasoning
+                      <details className="mb-4 rounded-lg border border-indigo-500/20 bg-indigo-950/20 hover:bg-indigo-950/30 transition-colors">
+                        <summary className="cursor-pointer p-3 flex items-center gap-2 text-indigo-200/90">
+                          <div className="flex items-center gap-2">
+                            {status === "streaming" ? (
+                              <div className="w-4 h-4 rounded-full border-2 border-indigo-500/50 border-t-transparent animate-spin" />
+                            ) : (
+                              <svg 
+                                className="w-4 h-4"
+                                viewBox="0 0 24 24"
+                                fill="none" 
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path d="M9 12l2 2 4-4" />
+                              </svg>
+                            )}
+                            <span className="font-medium">Reasoning</span>
+                          </div>
                         </summary>
-                        <div className="mt-2 text-sm text-gray-400 overflow-x-auto">
-                          <pre className="whitespace-pre-wrap break-words bg-indigo-900/10">
-                            {part.details?.map((detail, i) => (
-                              <div key={i}>
-                                {detail.type === "text"
-                                  ? detail.text
-                                  : "<redacted>"}
+                        <div className="px-3 pb-3">
+                          <div className="text-sm text-gray-300/90 space-y-2">
+                            {part.details && part.details.length > 0 ? (
+                              part.details.map((detail, i) => (
+                                <div key={i} className="leading-relaxed">
+                                  {detail.type === "text" ? detail.text : "<redacted>"}
+                                </div>
+                              ))
+                            ) : status === "streaming" && part.type === "reasoning" ? (
+                              <div className="text-gray-400 italic">
+                                Reasoning in progress...
                               </div>
-                            ))}
-                          </pre>
+                            ) : (
+                              <div className="text-gray-400 italic">
+                                No reasoning details available
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </details>
                     </div>

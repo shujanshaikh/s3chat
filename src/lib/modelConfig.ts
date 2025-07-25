@@ -11,7 +11,7 @@ export const AI_MODELS = [
     "DeepSeek R1 Distill Llama 70B",
     "Gemini 1.5 Flash Latest",
     "Gemini 1.5 Pro Latest",
-    "Qwen QWQ 32B",
+    "Llama 3.3 70B Versatile",
   ] as const;
   
   export type AIModel = (typeof AI_MODELS)[number];
@@ -83,8 +83,8 @@ export const AI_MODELS = [
       provider: "google",
       headerKey: "x-google-api-key",  
     },
-    "Qwen QWQ 32B": {
-      modelId: "qwen-qwq-32b",
+    "Llama 3.3 70B Versatile": {
+      modelId: "llama-3.3-70b-versatile",
       provider: "groq",
       headerKey: "x-groq-api-key",
     },
@@ -103,7 +103,7 @@ export const AI_MODELS = [
     "deepseek-r1-distill-llama-70b": "DeepSeek R1 Distill Llama 70B",
     "gemini-1.5-flash-latest": "Gemini 1.5 Flash Latest",
     "gemini-1.5-pro-latest": "Gemini 1.5 Pro Latest",
-    "qwen-qwq-32b": "Qwen QWQ 32B",
+    "llama-3.3-70b-versatile": "Llama 3.3 70B Versatile",
   };
   
 
